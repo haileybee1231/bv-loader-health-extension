@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "bv-loader-health-monitor",
+  "description": "A Bazaarvoice companion extension to see in-page performance and other information on your BV deployment.",
+  "version": "1",
+  "author": "Hailey Jane Bobella",
+ "browser_action": {
+    "default_icon": "./assets/images/favicon.ico",
+    "default_title": "BV Health Inspector"
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "run_at": "document_start",
+      "matches": ["<all_urls>"],
+      "js": [
+        "dist/popup.js"
+      ],
+      "css": [
+        "css/main.css",
+        "css/bvbootstrap/css/bootstrap.min.css"
+      ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "webRequest",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'",
+  "web_accessible_resources": [
+    "bvbootstrap/*"
+  ]
+ }

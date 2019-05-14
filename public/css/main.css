@@ -1,0 +1,29 @@
+/*
+ * This page is added onto every new tab by chrome
+ * specified under content_scripts to style the sidebar
+ * and iframe, does not work for styles inside iframe
+ */
+
+ #bv_sidebar_container {
+  position: fixed;
+  top: 15px;
+  right: 0px;
+  width: 400px;
+  height: 90%;
+  box-shadow: 0 0 1em black;
+  background-color: white;
+  z-index: 2000008100;
+  text-align: left;
+}
+#bv_sidebar_portal {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-color: #003d4c; /*same as bv-bootstrap nav border color*/
+}
+
+@media print { 
+  #bv_sidebar_container, #bv_sidebar_iframe {
+    display: none;
+  }
+}
