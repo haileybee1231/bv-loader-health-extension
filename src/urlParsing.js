@@ -1,4 +1,5 @@
 import rison from 'rison';
+import _ from 'underscore';
 
 // global regular expressions
 const ifFirstPartyExist =  /BVBRANDID|BVBRANDSID/;
@@ -6,7 +7,6 @@ const isFirstPartyNull =  /BVBRANDID=null|BVBRANDSID=null/;
 const magpieGif = /\/a.gif\?|\/t.gif\?|\/st.gif\?/;
 const magpieValidationJSON =  /\/a.json\?|\/t.json\?|\/st.json\?/;
 const magpieJsReference = /\/magpiejs\/([^\/]+)/;
-const analyticsJsReference = /([^\/]+)\/bv-analytics\.js/;
 const magpieJsVersion = /magpieJsVersion=([\d.]+)/;
 
 const dict = {
@@ -41,6 +41,13 @@ export const isMagpieGif = url => url.match(magpieGif);
 
 export const isMagpieValidationJSON = url => url.match(magpieValidationJSON);
 
+export const hasFirstParty = url => (url.match(ifFirstPartyExist) && !url.match(isFirstPartyNull));
+
+export const hasThirdParty = url => url.match(/\/sid.gif|\/sid.json/);
+
+export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
+  (url.match(/\/a.gif|\/a.json/) && !hasFirstParty && !hasThirdParty);
+
 export const checkRequest = url => {
   for (let i = 0; i < resourceArr.length; i++) {
     if (url.includes(resourceArr[i])) {
@@ -50,7 +57,14 @@ export const checkRequest = url => {
 
   for (let i = 0; i < bv_analytics_arr.length; i++) {
     if (url.match(bv_analytics_arr[i])) {
-      return { analytics_event: url }
+      const isFirstParty = hasFirstParty(url);
+      const isThirdParty = hasThirdParty(url);
+      return {
+        analytics_event: url,
+        firstParty: isFirstParty,
+        thirdParty: isThirdParty,
+        isAnonymous: isAnonymous(url, isFirstParty, isThirdParty)
+      }
     }
   }
 

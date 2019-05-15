@@ -21,7 +21,9 @@
       ],
       "css": [
         "css/main.css",
-        "css/bvbootstrap/css/bootstrap.min.css"
+        "css/bvbootstrap/css/bootstrap.min.css",
+        "css/bvbootstrap/css/bvglyphs.css",
+        "css/bvbootstrap/css/font-awesome.css"
       ]
     }
   ],
@@ -30,11 +32,14 @@
     "storage",
     "tabs",
     "webRequest",
+    "webRequestBlocking",
     "http://*/*",
     "https://*/*"
   ],
   "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'",
   "web_accessible_resources": [
-    "bvbootstrap/*"
+    "bvbootstrap/*",
+    "dist/fonts/*",
+    "assets/images/*"
   ]
  }

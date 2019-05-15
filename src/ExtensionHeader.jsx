@@ -17,7 +17,7 @@ class ExtensionHeader extends React.Component {
         <div className="navbar-inner">
           <div className="container-fluid">
             <div className="brand brand-bv"></div>
-            <p className="navbar-text">Analytics Inspector</p>
+            <p className="navbar-text no-float">bv-loader Client Health Inspector</p>
           </div>
         </div>
       </header>

@@ -5,13 +5,14 @@ import ExtensionBody from './ExtensionBody.jsx';
 
 import { checkRequest, parseAnalyticsEvent } from './urlParsing';
 
-class App extends React.Component {
+class Popup extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       open: false,
-      numNewEvents: 0,
+      totalAnalytics: 0,
+      totalPerfMarks: 0,
       resources: {
         bvjs: false,
         firebird: false,
@@ -23,9 +24,12 @@ class App extends React.Component {
         inline_ratings: false,
         spotlights: false
       },
-      analytics: {
-
-      },
+      analytics: {},
+      perfMarks: null,
+      firstParty: false,
+      thirdParty: false,
+      anonymous: false,
+      selectedResource: null,
       changed: true
     };
 
@@ -35,34 +39,47 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    setTimeout(() => {
+      this.getNewPerfMarks();
+    }, 5000);
+
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       switch(request.action) {
         case 'toggle':
           this.setState({ open: !this.state.open });
           break;
         case 'capture_events':
-          const { resource, analytics_event } = checkRequest(request.data);
-          if (resource) {
+          const {
+            resource,
+            analytics_event,
+            firstParty,
+            thirdParty,
+            anonymous
+          } = checkRequest(request.data.url);
+          if (resource && !this.state.resources[resource]) {
             this.setState({
               resources: {
                 ...this.state.resources,
-                [resource]: true
+                [resource]: request.data
               },
               changed: true,
             }, this.setState({
               changed: false
             }))
           } else if (analytics_event) {
-            console.log('************', parseAnalyticsEvent(request.data))
             this.setState({
               analytics: {
                 ...this.state.analytics,
-                [analytics_event]: parseAnalyticsEvent(request.data)
+                [analytics_event]: parseAnalyticsEvent(request.data.url)
               },
               changed: true,
+              firstParty,
+              thirdParty,
+              anonymous
             }, this.setState({
               changed: false
             }))
+            this.addAnalytic()
           }
           break;
         default:
@@ -77,16 +94,54 @@ class App extends React.Component {
     }
   }
 
+  getNewPerfMarks = () => {
+    const perfMarkArr = performance.getEntries().filter(entry => entry.name.toLowerCase().includes('bv'));
+    this.setState({
+      perfMarks: perfMarkArr,
+      totalPerfMarks: perfMarkArr.length
+    })
+  }
+
+  addAnalytic = () => this.setState({ totalAnalytics: this.state.totalAnalytics + 1 })
+
+  handleResourceClick = resource => {
+    this.setState({
+      selectedResource: this.state.resources[resource] || null
+    })
+  }
+
   render() {
     if (this.state.open) {
       this.root.appendChild(this.el)
 
+      const {
+        resources,
+        analytics,
+        perfMarks,
+        totalAnalytics,
+        totalPerfMarks,
+        firstParty,
+        thirdParty,
+        anonymous,
+        selectedResource,
+        changed
+      } = this.state;
+
       return createPortal(
         <React.Fragment>
-          <ExtensionHeader />,
+          <ExtensionHeader />
           <ExtensionBody
-            resources={this.state.resources}
-            changed={this.state.changed}
+            resources={resources}
+            analytics={analytics}
+            perfMarks={perfMarks}
+            totalAnalytics={totalAnalytics}
+            totalPerfMarks={totalPerfMarks}
+            firstParty={firstParty}
+            thirdParty={thirdParty}
+            anonymous={anonymous}
+            selectedResource={selectedResource}
+            changed={changed}
+            handleResourceClick={this.handleResourceClick}
           />
         </React.Fragment>,
         this.el
@@ -97,4 +152,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default Popup;

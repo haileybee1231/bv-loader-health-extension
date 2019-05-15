@@ -1,6 +1,7 @@
 import React from 'react';
+import TableRow from './TableRow.jsx';
 
-const ResourceList = (props) => {
+const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) => {
   const {
     bvjs,
     firebird,
@@ -11,53 +12,48 @@ const ResourceList = (props) => {
     inline_ratings,
     spotlights,
     bv_analytics
-  } = props.resources;
+  } = resources;
 
-  const trueOrFalse = condition => condition ? <em>true</em> : 'false'
+  const resourceArr = [
+    ['bv.js', bvjs],
+    ['Firebird', firebird],
+    ['Rating Summary', rating_summary],
+    ['analytics.js', bv_analytics],
+    ['Inline Ratings', inline_ratings],
+    ['Reviews', reviews],
+    ['Questions', questions],
+    ['Review Highlights', review_highlights],
+    ['Spotlights', spotlights],
+    ['In Flex Pilot', window.location.href.includes('bv_segment=layouts_pilot')]
+  ]
+
+  const trueOrFalse = condition => condition ? <em>true</em> : 'false';
 
   return (
-    <table style={{ width: '80%', margin: 'auto' }}>
-      <tr>
-        <td>bv.js:</td>
-        <td>{trueOrFalse(bvjs)}</td>
-      </tr>
-      <tr>
-        <td>Firebird:</td>
-        <td>{trueOrFalse(firebird)}</td>
-      </tr>
-      <tr>
-        <td>bv_analytics:</td>
-        <td>{trueOrFalse(bv_analytics)}</td>
-      </tr>
-      <tr>
-        <td>Rating Summary:</td>
-        <td>{trueOrFalse(rating_summary)}</td>
-      </tr>
-      <tr>
-        <td>Review Highlights:</td>
-        <td>{trueOrFalse(review_highlights)}</td>
-      </tr>
-      <tr>
-        <td>Reviews:</td>
-        <td>{trueOrFalse(reviews)}</td>
-      </tr>
-      <tr>
-        <td>Questions:</td>
-        <td>{trueOrFalse(questions)}</td>
-      </tr>
-      <tr>
-        <td>Inline Ratings:</td>
-        <td>{trueOrFalse(inline_ratings)}</td>
-      </tr>
-      <tr>
-        <td>Spotlights:</td>
-        <td>{trueOrFalse(spotlights)}</td>
-      </tr>
-      <tr>
-        <td>In Flex Pilot:</td>
-        <td>{trueOrFalse(window.location.href.includes('bv_segment=layouts_pilot'))}</td>
-      </tr>
-    </table>
+    <React.Fragment>
+      <h2
+        onClick={() => toggleSection('resources')}
+        style={{ cursor: 'pointer' }}
+      >
+        <i className={resourcesOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
+        Resources
+      </h2>
+      {resourcesOpen && (
+        <table style={{ width: '80%', margin: 'auto' }}>
+          <tbody>
+            {resourceArr.map((resourceTuple, index) =>
+              <TableRow
+                name={resourceTuple[0]}
+                value={trueOrFalse(resourceTuple[1])}
+                isResource={true}
+                handleClick={handleClick}
+                key={index}
+              />
+            )}
+          </tbody>
+        </table>
+      )}
+    </React.Fragment>
   )
 }
 

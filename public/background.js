@@ -21,15 +21,6 @@ var URL_FILTER = [
 
 const sendMessage = (tabInfo, action) => chrome.tabs.sendMessage(tabInfo, action);
 
-chrome.browserAction.onClicked.addListener(tab => {
-	chrome.tabs.query({
-    active: true,
-    currentWindow:true
-  }, function(tabs) {
-    sendMessage(tabs[0].id, { action: 'toggle' });
-  });
-});
-
 chrome.webRequest.onCompleted.addListener(details => {
   chrome.tabs.query({
       active: true,
@@ -47,6 +38,15 @@ chrome.webRequest.onCompleted.addListener(details => {
       //     });
       // }
 
-      sendMessage(tabs[0].id ,{action: "capture_events", data: details.url});
+      sendMessage(tabs[0].id ,{ action: "capture_events", data: details });
   });
 }, {urls: ['<all_urls>'] });
+
+chrome.browserAction.onClicked.addListener(tab => {
+	chrome.tabs.query({
+    active: true,
+    currentWindow:true
+  }, function(tabs) {
+    sendMessage(tabs[0].id, { action: 'toggle' });
+  });
+});

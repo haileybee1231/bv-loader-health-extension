@@ -11,8 +11,8 @@
 */
 @font-face {
   font-family: 'bvglyphsMedium';
-  src: url('../font/bvglyphs-webfont.eot');
-  src: url('../font/bvglyphs-webfont.eot?#iefix') format('embedded-opentype'), url('../font/bvglyphs-webfont.woff') format('woff'), url('../font/bvglyphs-webfont.ttf') format('truetype'), url('../font/bvglyphs-webfont.svg#bvglyphsMedium') format('svg');
+  src: url('chrome-extension://__MSG_@@extension_id__/dist/fonts/bvglyphs-webfont.eot');
+  src: url('chrome-extension://__MSG_@@extension_id__/dist/fonts/bvglyphs-webfont.eot?#iefix') format('embedded-opentype'), url('chrome-extension://__MSG_@@extension_id__/dist/fonts/bvglyphs-webfont.woff') format('woff'), url('chrome-extension://__MSG_@@extension_id__/dist/fonts/bvglyphs-webfont.ttf') format('truetype'), url('chrome-extension://__MSG_@@extension_id__/dist/fonts/bvglyphs-webfont.svg#bvglyphsMedium') format('svg');
   font-weight: normal;
   font-style: normal;
 }

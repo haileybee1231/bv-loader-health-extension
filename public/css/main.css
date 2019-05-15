@@ -14,7 +14,9 @@
   background-color: white;
   z-index: 2000008100;
   text-align: left;
+  overflow-y: scroll;
 }
+
 #bv_sidebar_portal {
   position: absolute;
   width: 100%;
@@ -26,4 +28,53 @@
   #bv_sidebar_container, #bv_sidebar_iframe {
     display: none;
   }
+}
+
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+  height: 30px;
+  width: 95%;
+  text-align: left;
+  border: none;
+  outline: none;
+  transition: 0.4s;
+}
+
+.accordion > a > div {
+  width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+/* Style the accordion panel. Note: hidden by default */
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  overflow: hidden;
+}
+
+a {
+  cursor: pointer;
+  color:#008fb2;
+  text-decoration:none;
+}
+
+.inline-headers h1, .inline-headers em {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.no-float {
+  float: none !important;
 }

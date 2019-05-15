@@ -1,27 +1,67 @@
 import React from 'react';
-import AnalyticsTableRow from './AnalyticsTableRow.jsx';
+import Accordion from './Accordion.jsx';
+import TableRow from './TableRow.jsx';
 
-const transformEvent = event => {
-  const outputArr = [];
-  for (const prop in event) {
-    outputArry.push([prop, event[prop]]);
+const transformAnalytics = analyticsObj => {
+  const analyticsArr = [];
+
+  for (const analytic in analyticsObj) {
+    analyticsArr.push([analytic, analyticsObj[analytic]]);
   }
-  return outputArr;
+
+  return analyticsArr;
 }
 
-const AnalyticsList = ({ analytics }) => (
-  <table style={{ width: '80%', margin: 'auto' }}>
-    {analytics.map(analyticEvent => {
-      // const propArr = transformEvent(analyticEvent);
-      // return (
-      //   <React.Fragment>
-      //     {propArr.map(tuple =>
-      //       <AnalyticsTableRow name={propTuple[0]} value={propTuple[1]} />
-      //     )}
-      //   </React.Fragment>
-      // )
-    })}
-  </table>
-)
+const AnalyticsList = props => {
+  const {
+    analytics,
+    totalAnalytics,
+    toggleSection,
+    analyticsOpen,
+    firstParty,
+    thirdParty,
+    anonymous
+  } = props;
+  const trueOrFalse = condition => condition ? <em>true</em> : 'false';
+  const analyticsArr = transformAnalytics(analytics);
+
+  return (
+    <React.Fragment>
+      <h2
+        onClick={() => toggleSection('analytics')}
+        style={{ cursor: 'pointer' }}
+      >
+        <i className={analyticsOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
+        Analytics Events ({totalAnalytics})
+      </h2>
+      {analyticsOpen && (
+        <React.Fragment>
+          <table style={{ width: '80%', margin: 'auto' }}>
+            <tbody>
+              <TableRow name={'First Party Cookie:'} value={trueOrFalse(firstParty)} />
+              <TableRow name={'Third Party Cookie:'} value={trueOrFalse(thirdParty)} />
+              <TableRow name={'Anonymous:'} value={trueOrFalse(anonymous)} />
+            </tbody>
+          </table>
+          <div style={{ width: '100%', margin: 'auto' }}>
+              {analyticsArr.map((analyticEventTuple, index) => {
+                const propArr = transformAnalytics(analyticEventTuple[1][0]);
+                const { cl, bvProduct, name } = analyticEventTuple[1][0];
+                return (
+                  <Accordion
+                    propArr={propArr}
+                    cl={cl}
+                    bvProduct={bvProduct || name}
+                    key={index}
+                    index={index}
+                  />
+                )
+              })}
+          </div>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  )
+}
 
 export default AnalyticsList;
