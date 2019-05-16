@@ -19,26 +19,21 @@ var URL_FILTER = [
   '*://schema.mag.bazaarvoice.com/*'
 ];
 
-const sendMessage = (tabInfo, action) => chrome.tabs.sendMessage(tabInfo, action);
+const sendMessage = (tabInfo, action) => {
+  chrome.tabs.sendMessage(tabInfo, action);
+}
 
 chrome.webRequest.onCompleted.addListener(details => {
   chrome.tabs.query({
       active: true,
       currentWindow: true
   }, tabs => {
-      // If we get a request to load a version of magpie,
-      // we should update the inspector with the version.
-      // var regEx = /(analytics|magpie)-static\.ugc\.bazaarvoice\.com/;
-      // if (regEx.test(details.url)) {
-      //     var version = getVersion(details.url);
-      //     // Tell the extension on the tab that the version changed.
-      //     sendMessage(tabs[0].id, {
-      //         action: 'requested_version',
-      //         data: version
-      //     });
-      // }
-
-      sendMessage(tabs[0].id ,{ action: "capture_events", data: details });
+      if (tabs[0]) {
+        // We need to set a timeout to prevent race conditions for resources loaded early in waterfall
+        setTimeout(() => {
+          sendMessage(tabs[0].id, { action: "capture_events", data: details });
+        }, 1500)
+      }
   });
 }, {urls: ['<all_urls>'] });
 
@@ -50,3 +45,4 @@ chrome.browserAction.onClicked.addListener(tab => {
     sendMessage(tabs[0].id, { action: 'toggle' });
   });
 });
+

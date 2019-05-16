@@ -1,4 +1,5 @@
 import React from 'react';
+import BvJSDetails from './BvJsDetails.jsx';
 
 class ResourcePage extends React.Component {
   constructor(props) {
@@ -9,15 +10,39 @@ class ResourcePage extends React.Component {
     }
   }
 
+  componentDidMount() {
+    if (this.props.resourceName === 'bv.js' && !this.props.scriptAttrs.length) {
+      this.props.getBvJsScriptTag();
+    }
+  }
+
+  transformResourceObj = resourceObj => {
+    let propArr = [];
+
+    // for (let prop in resourceObj) {
+    //   if ()
+    // }
+  }
+
   render() {
     const {
       handleClick,
       resourceName,
-      version,
+      resourceDetails = {},
       resetVersion,
-      selectedResource
+      selectedResource,
+      scriptAttrs
     } = this.props;
-    console.log(selectedResource);
+    const {
+      version,
+      capabilitiesArr = [],
+      client,
+      site,
+      environment,
+      locale,
+      buildTime
+    } = resourceDetails
+
     return (
       <div style={{ paddingLeft: '10px', paddingTop: '10px' }}>
         <a
@@ -31,11 +56,17 @@ class ResourcePage extends React.Component {
           <em>{`${version ? 'v' : 'Resource not found.'}${version}`}</em>
         </div>
         <div>
-          <table>
-            <tbody>
-
-            </tbody>
-          </table>
+        {resourceName === 'bv.js' && (
+          <BvJSDetails
+            capabilitiesArr={capabilitiesArr}
+            client={client}
+            site={site}
+            environment={environment}
+            locale={locale}
+            buildTime={buildTime}
+            scriptAttrs={scriptAttrs}
+          />
+        )}
         </div>
       </div>
     )

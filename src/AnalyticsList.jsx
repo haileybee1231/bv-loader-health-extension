@@ -38,9 +38,9 @@ const AnalyticsList = props => {
         <React.Fragment>
           <table style={{ width: '80%', margin: 'auto' }}>
             <tbody>
-              <TableRow name={'First Party Cookie:'} value={trueOrFalse(firstParty)} />
-              <TableRow name={'Third Party Cookie:'} value={trueOrFalse(thirdParty)} />
-              <TableRow name={'Anonymous:'} value={trueOrFalse(anonymous)} />
+              <TableRow name={'First Party Cookie'} value={trueOrFalse(firstParty)} />
+              <TableRow name={'Third Party Cookie'} value={trueOrFalse(thirdParty)} />
+              <TableRow name={'Anonymous'} value={trueOrFalse(anonymous)} />
             </tbody>
           </table>
           <div style={{ width: '100%', margin: 'auto' }}>

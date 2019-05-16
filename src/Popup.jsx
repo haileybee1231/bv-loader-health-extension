@@ -24,6 +24,7 @@ class Popup extends React.Component {
         inline_ratings: false,
         spotlights: false
       },
+      BV: null,
       analytics: {},
       perfMarks: null,
       firstParty: false,
@@ -38,10 +39,38 @@ class Popup extends React.Component {
     this.el.id = 'bv_sidebar_container'
   }
 
+  injectScriptAndRetrieveBV = () => {
+    const s = document.createElement('script');
+    s.src = chrome.extension.getURL('/getBVScript.js');
+    (document.head||document.documentElement).appendChild(s);
+    s.onload = () => s.remove();
+  }
+
   componentDidMount() {
     setTimeout(() => {
       this.getNewPerfMarks();
     }, 5000);
+
+    document.addEventListener(
+      'bv_obj_retrieved',
+      ({ detail }) => {
+        try {
+          this.setState({
+            BV: JSON.parse(detail),
+            changed: true
+          },
+            this.setState({
+              changed: false
+            })
+          )
+        }
+        catch (e) {
+          console.error(e);
+        }
+      }
+    );
+
+    this.injectScriptAndRetrieveBV()
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       switch(request.action) {
@@ -105,6 +134,10 @@ class Popup extends React.Component {
   addAnalytic = () => this.setState({ totalAnalytics: this.state.totalAnalytics + 1 })
 
   handleResourceClick = resource => {
+    if (resource === 'analyticsjs') {
+      resource = 'bv_analytics';
+    }
+
     this.setState({
       selectedResource: this.state.resources[resource] || null
     })
@@ -124,7 +157,8 @@ class Popup extends React.Component {
         thirdParty,
         anonymous,
         selectedResource,
-        changed
+        changed,
+        BV
       } = this.state;
 
       return createPortal(
@@ -140,6 +174,7 @@ class Popup extends React.Component {
             thirdParty={thirdParty}
             anonymous={anonymous}
             selectedResource={selectedResource}
+            BV={BV}
             changed={changed}
             handleResourceClick={this.handleResourceClick}
           />

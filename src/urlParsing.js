@@ -51,6 +51,9 @@ export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
 export const checkRequest = url => {
   for (let i = 0; i < resourceArr.length; i++) {
     if (url.includes(resourceArr[i])) {
+      if (resourceArr[i] === 'bv.js' && url.includes('firebird')) {
+        return { resource: undefined }
+      }
       return { resource: dict[resourceArr[i]] }
     }
   }
