@@ -1,30 +1,30 @@
 import React from 'react';
 import TableRow from './TableRow.jsx';
 
-const BvJSDetails = ({
-  capabilitiesArr,
-  client,
-  site,
-  environment,
-  locale,
-  buildTime,
-  scriptAttrs
+const PRRDetails = ({
+  clientName,
+  displayCode,
+  submissionUI,
+  urlBase,
+  urlPathPrefix
 }) => (
   <React.Fragment>
     <h3>Client</h3>
-    {client}
-    <h3>Environment</h3>
-    {environment}
-    <h3>Site</h3>
-    {site}
-    <h3>Locale</h3>
-    {locale}
-    <h3>Build Time</h3>
+    {clientName}
+    <h3>Display Code</h3>
+    {displayCode}
+    <h3>Submission UI</h3>
+    {submissionUI}
+    <h3>URL Base</h3>
+    {urlBase}
+    <h3>URL Path Prefix</h3>
+    {urlPathPrefix}
+    {/* <h3>Build Time</h3>
     {new Date(buildTime).toDateString()}, {new Date(buildTime).toLocaleTimeString('english')}
     <h3>Capabilities</h3>
     <ul>
       {capabilitiesArr.map((app, index) =>
-        <li key={index}>{app.replace('@', ', v')}</li>
+        <li key={index}>{`• ${app.replace('@', ', v')}`}</li>
       )}
     </ul>
     <h3>Script Tag</h3>
@@ -34,8 +34,8 @@ const BvJSDetails = ({
           <TableRow name={tuple[0]} value={tuple[1]} key={index} />
         )}
       </tbody>
-    </table>
+    </table> */}
   </React.Fragment>
 )
 
-export default BvJSDetails;
+export default PRRDetails;

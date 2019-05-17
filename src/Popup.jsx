@@ -1,9 +1,11 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
+import _cloneDeep from 'lodash/cloneDeep'
 import ExtensionHeader from './ExtensionHeader.jsx';
 import ExtensionBody from './ExtensionBody.jsx';
 
 import { checkRequest, parseAnalyticsEvent } from './urlParsing';
+
 
 class Popup extends React.Component {
   constructor(props) {
@@ -16,6 +18,7 @@ class Popup extends React.Component {
       resources: {
         bvjs: false,
         firebird: false,
+        prr: false,
         bv_analytics: false,
         rating_summary: false,
         review_highlights: false,
@@ -25,6 +28,7 @@ class Popup extends React.Component {
         spotlights: false
       },
       BV: null,
+      $BV: null,
       analytics: {},
       perfMarks: null,
       firstParty: false,
@@ -46,29 +50,51 @@ class Popup extends React.Component {
     s.onload = () => s.remove();
   }
 
+  parseGlobalObject = ({ detail }, namespace) => {
+    try {
+      const parsed = JSON.parse(detail);
+
+      if (parsed.Internal && !parsed.Internal.isPRR) {
+        const resourcesCopy = _cloneDeep(this.state.resources);
+
+        this.setState({
+          resources: {
+            ...resourcesCopy,
+            prr: false
+          }
+        });
+      }
+
+      this.setState({
+        [namespace]: parsed || 'Namespace not present.',
+        changed: true
+      },
+        this.setState({
+          changed: false
+        })
+      )
+    }
+    catch (e) {
+      console.error(e);
+    }
+  }
+
+  componentWillMount() {
+    document.addEventListener(
+      'bv_obj_retrieved',
+      (bvObj) => this.parseGlobalObject(bvObj, 'BV')
+    );
+
+    document.addEventListener(
+      '$bv_obj_retrieved',
+      ($bvObj) => this.parseGlobalObject($bvObj, '$BV')
+    );
+  }
+
   componentDidMount() {
     setTimeout(() => {
       this.getNewPerfMarks();
     }, 5000);
-
-    document.addEventListener(
-      'bv_obj_retrieved',
-      ({ detail }) => {
-        try {
-          this.setState({
-            BV: JSON.parse(detail),
-            changed: true
-          },
-            this.setState({
-              changed: false
-            })
-          )
-        }
-        catch (e) {
-          console.error(e);
-        }
-      }
-    );
 
     this.injectScriptAndRetrieveBV()
 
@@ -158,7 +184,8 @@ class Popup extends React.Component {
         anonymous,
         selectedResource,
         changed,
-        BV
+        BV,
+        $BV
       } = this.state;
 
       return createPortal(
@@ -175,6 +202,7 @@ class Popup extends React.Component {
             anonymous={anonymous}
             selectedResource={selectedResource}
             BV={BV}
+            $BV={$BV}
             changed={changed}
             handleResourceClick={this.handleResourceClick}
           />

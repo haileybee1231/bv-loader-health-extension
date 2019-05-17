@@ -1,5 +1,5 @@
 import rison from 'rison';
-import _ from 'underscore';
+import _ from 'lodash';
 
 // global regular expressions
 const ifFirstPartyExist =  /BVBRANDID|BVBRANDSID/;
@@ -49,6 +49,10 @@ export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
   (url.match(/\/a.gif|\/a.json/) && !hasFirstParty && !hasThirdParty);
 
 export const checkRequest = url => {
+  if (url.includes('ugc.bazaarvoice.com/static/') && url.includes('/bvapi.js')) {
+    return { resource: 'prr' }
+  }
+
   for (let i = 0; i < resourceArr.length; i++) {
     if (url.includes(resourceArr[i])) {
       if (resourceArr[i] === 'bv.js' && url.includes('firebird')) {

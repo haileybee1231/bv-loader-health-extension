@@ -1,15 +1,8 @@
 import React from 'react';
 import BvJSDetails from './BvJsDetails.jsx';
+import PRRDetails from './PRRDetails.jsx';
 
 class ResourcePage extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-
-    }
-  }
-
   componentDidMount() {
     if (this.props.resourceName === 'bv.js' && !this.props.scriptAttrs.length) {
       this.props.getBvJsScriptTag();
@@ -40,7 +33,12 @@ class ResourcePage extends React.Component {
       site,
       environment,
       locale,
-      buildTime
+      buildTime,
+      clientName,
+      displayCode,
+      submissionUI,
+      urlBase,
+      urlPathPrefix
     } = resourceDetails
 
     return (
@@ -65,6 +63,15 @@ class ResourcePage extends React.Component {
             locale={locale}
             buildTime={buildTime}
             scriptAttrs={scriptAttrs}
+          />
+        )}
+        {resourceName === 'PRR' && (
+          <PRRDetails
+            clientName={clientName}
+            displayCode={displayCode}
+            submissionUI={submissionUI}
+            urlBase={urlBase}
+            urlPathPrefix={urlPathPrefix}
           />
         )}
         </div>

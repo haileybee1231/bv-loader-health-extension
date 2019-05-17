@@ -88,7 +88,26 @@ class ExtensionBody extends React.Component {
 
   parseResponse = text => {
     const resourceDetails = {};
-    if (this.state.resourceName === 'Firebird') {
+
+    if (this.state.resourceName === 'PRR') {
+      let configuration;
+
+      try {
+        configuration = JSON.parse(/\$BV\.configure\((.*)\);/.exec(text)[1]);
+
+        const { global } = configuration;
+
+        resourceDetails.version = global.version;
+        resourceDetails.clientName = global.clientName;
+        resourceDetails.displayCode = global.displayCode;
+        resourceDetails.submissionUI = global.submissionUI;
+        resourceDetails.urlBase = global.urlBase;
+        resourceDetails.urlPathPrefix = global.urlPathPrefix || '""';
+      }
+      catch (e) {
+        console.error(e)
+      }
+    } else if (this.state.resourceName === 'Firebird') {
       resourceDetails.version = /version="([0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2})"/.exec(text)[1]
     } else {
       resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/);
@@ -118,7 +137,8 @@ class ExtensionBody extends React.Component {
       thirdParty,
       selectedResource,
       anonymous,
-      BV
+      BV,
+      $BV
     } = this.props;
 
     return (
@@ -147,6 +167,7 @@ class ExtensionBody extends React.Component {
               toggleSection={this.toggleSection}
               handleClick={this.handleClick}
               BV={BV}
+              $BV={$BV}
               getBvJsScriptTag={this.getBvJsScriptTag}
               scriptAttrs={this.state.scriptAttrs}
               changed={changed}

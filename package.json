@@ -11,10 +11,10 @@
   "author": "Hailey Jane Bobella",
   "license": "ISC",
   "dependencies": {
+    "lodash": "^4.17.11",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "rison": "^0.1.1",
-    "underscore": "^1.9.1"
+    "rison": "^0.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

@@ -5,6 +5,7 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
   const {
     bvjs,
     firebird,
+    prr,
     rating_summary,
     review_highlights,
     reviews,
@@ -17,6 +18,7 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
   const resourceArr = [
     ['bv.js', bvjs],
     ['Firebird', firebird],
+    ['PRR', prr],
     ['Rating Summary', rating_summary],
     ['analytics.js', bv_analytics],
     ['Inline Ratings', inline_ratings],

@@ -9,7 +9,7 @@ module.exports = {
   watch: true,
   context: __dirname + '/src',
   entry: {
-    content: __dirname + '/public/content',
+    getBVScript: __dirname + '/public/getBVScript',
     popup: __dirname + '/src/popup',
     background: __dirname + '/public/background',
   },
