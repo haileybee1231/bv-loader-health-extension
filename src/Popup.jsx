@@ -16,16 +16,16 @@ class Popup extends React.Component {
       totalAnalytics: 0,
       totalPerfMarks: 0,
       resources: {
-        bvjs: false,
-        firebird: false,
-        prr: false,
-        bv_analytics: false,
-        rating_summary: false,
-        review_highlights: false,
-        reviews: false,
-        questions: false,
-        inline_ratings: false,
-        spotlights: false
+        bvjs: null,
+        firebird: null,
+        prr: null,
+        bv_analytics: null,
+        rating_summary: null,
+        review_highlights: null,
+        reviews: null,
+        questions: null,
+        inline_ratings: null,
+        spotlights: null
       },
       BV: null,
       $BV: null,
@@ -52,17 +52,25 @@ class Popup extends React.Component {
 
   parseGlobalObject = ({ detail }, namespace) => {
     try {
-      const parsed = JSON.parse(detail);
+      const parsed = JSON.parse(detail) || {};
+      const resourcesCopy = _cloneDeep(this.state.resources);
 
-      if (parsed.Internal && !parsed.Internal.isPRR) {
-        const resourcesCopy = _cloneDeep(this.state.resources);
-
-        this.setState({
-          resources: {
-            ...resourcesCopy,
-            prr: false
-          }
-        });
+      if (parsed.Internal) {
+        if (!parsed.Internal.isPRR) {
+          this.setState({
+            resources: {
+              ...resourcesCopy,
+              prr: false
+            }
+          });
+        } else {
+          this.setState({
+            resources: {
+              ...resourcesCopy,
+              firebird: false
+            }
+          });
+        }
       }
 
       this.setState({
@@ -82,12 +90,12 @@ class Popup extends React.Component {
   componentWillMount() {
     document.addEventListener(
       'bv_obj_retrieved',
-      (bvObj) => this.parseGlobalObject(bvObj, 'BV')
+      bvObj => this.parseGlobalObject(bvObj, 'BV')
     );
 
     document.addEventListener(
       '$bv_obj_retrieved',
-      ($bvObj) => this.parseGlobalObject($bvObj, '$BV')
+      $bvObj => this.parseGlobalObject($bvObj, '$BV')
     );
   }
 
@@ -112,15 +120,33 @@ class Popup extends React.Component {
             anonymous
           } = checkRequest(request.data.url);
           if (resource && !this.state.resources[resource]) {
-            this.setState({
-              resources: {
-                ...this.state.resources,
-                [resource]: request.data
-              },
-              changed: true,
-            }, this.setState({
-              changed: false
-            }))
+            if (Array.isArray(resource)) {
+              resource.forEach(possibility => {
+                if (this.state.resources[possibility] === false) {
+                  return;
+                }
+
+                this.setState({
+                  resources: {
+                    ...this.state.resources,
+                    [possibility]: request.data
+                  },
+                  changed: true,
+                }, this.setState({
+                  changed: false
+                }))
+              })
+            } else {
+              this.setState({
+                resources: {
+                  ...this.state.resources,
+                  [resource]: request.data
+                },
+                changed: true,
+              }, this.setState({
+                changed: false
+              }))
+            }
           } else if (analytics_event) {
             this.setState({
               analytics: {

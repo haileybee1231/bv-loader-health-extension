@@ -1,10 +1,11 @@
 import React from 'react';
 import BvJSDetails from './BvJsDetails.jsx';
 import PRRDetails from './PRRDetails.jsx';
+import FirebirdDetails from './FirebirdDetails.jsx';
 
 class ResourcePage extends React.Component {
   componentDidMount() {
-    if (this.props.resourceName === 'bv.js' && !this.props.scriptAttrs.length) {
+    if (this.props.resourceName === 'bv.js' && !this.props.bvJsScriptAttrs.length) {
       this.props.getBvJsScriptTag();
     }
   }
@@ -24,7 +25,7 @@ class ResourcePage extends React.Component {
       resourceDetails = {},
       resetVersion,
       selectedResource,
-      scriptAttrs
+      bvJsScriptAttrs
     } = this.props;
     const {
       version,
@@ -38,7 +39,10 @@ class ResourcePage extends React.Component {
       displayCode,
       submissionUI,
       urlBase,
-      urlPathPrefix
+      urlPathPrefix,
+      siteId,
+      env,
+      implementations
     } = resourceDetails
 
     return (
@@ -62,7 +66,7 @@ class ResourcePage extends React.Component {
             environment={environment}
             locale={locale}
             buildTime={buildTime}
-            scriptAttrs={scriptAttrs}
+            bvJsScriptAttrs={bvJsScriptAttrs}
           />
         )}
         {resourceName === 'PRR' && (
@@ -72,6 +76,14 @@ class ResourcePage extends React.Component {
             submissionUI={submissionUI}
             urlBase={urlBase}
             urlPathPrefix={urlPathPrefix}
+          />
+        )}
+        {resourceName === 'Firebird' && (
+          <FirebirdDetails
+            buildTime={buildTime}
+            env={env}
+            siteId={siteId}
+            implementations={implementations}
           />
         )}
         </div>

@@ -8,7 +8,7 @@ const BvJSDetails = ({
   environment,
   locale,
   buildTime,
-  scriptAttrs
+  bvJsScriptAttrs
 }) => (
   <React.Fragment>
     <h3>Client</h3>
@@ -30,7 +30,7 @@ const BvJSDetails = ({
     <h3>Script Tag</h3>
     <table>
       <tbody>
-        {scriptAttrs.map((tuple, index) =>
+        {bvJsScriptAttrs.map((tuple, index) =>
           <TableRow name={tuple[0]} value={tuple[1]} key={index} />
         )}
       </tbody>

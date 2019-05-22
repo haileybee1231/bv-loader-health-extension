@@ -39,7 +39,7 @@ class GlobalsList extends React.Component {
     const { [resource]: namespace } = this.props;
 
     if (namespace && resource === 'BV') {
-      const scriptAttrs = this.props.getBvJsScriptTag();
+      const bvJsScriptAttrs = this.props.getBvJsScriptTag();
 
       const globalPath = 'global';
       const optionsPath = 'options';
@@ -76,7 +76,7 @@ class GlobalsList extends React.Component {
           Pixel: !!pixel
         },
         containers,
-        scriptAttrs
+        bvJsScriptAttrs
       });
     }
 
@@ -114,7 +114,7 @@ class GlobalsList extends React.Component {
     const {
       globalsOpen,
       toggleSection,
-      scriptAttrs
+      bvJsScriptAttrs
     } = this.props;
 
     const {
@@ -172,11 +172,11 @@ class GlobalsList extends React.Component {
               />
             )}
             <h4>bv.js Script Tag</h4>
-            {scriptAttrs.length ? (
+            {bvJsScriptAttrs.length ? (
               <React.Fragment>
                 <table style={{ width: '80%', margin: 'auto' }}>
                   <tbody>
-                  {scriptAttrs.map((tuple, index) =>
+                  {bvJsScriptAttrs.map((tuple, index) =>
                     <TableRow
                       name={tuple[0]}
                       value={tuple[1]}

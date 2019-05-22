@@ -17,7 +17,7 @@ class ExtensionBody extends React.Component {
       globalsOpen: false,
       perfMarksOpen: false,
       analyticsOpen: false,
-      scriptAttrs: []
+      bvJsScriptAttrs: []
     }
   }
 
@@ -50,7 +50,7 @@ class ExtensionBody extends React.Component {
   getBvJsScriptTag = () => {
     const bvJsScriptTag = document.querySelector('[src*="bv.js"]');
     const { attributes } = bvJsScriptTag;
-    const scriptAttrs = [];
+    const bvJsScriptAttrs = [];
     const foundAttrs = {};
 
     for (let i = 0; i < attributes.length; i++) {
@@ -58,20 +58,20 @@ class ExtensionBody extends React.Component {
       nodeValue = nodeName === 'async' || nodeName === 'defer' ? <em>true</em> : nodeValue;
       foundAttrs[nodeName] = nodeValue;
       if (nodeName !== 'type') {
-        scriptAttrs.push([nodeName, nodeValue]);
+        bvJsScriptAttrs.push([nodeName, nodeValue]);
       }
     }
 
     if (!foundAttrs.defer) {
-      scriptAttrs.push(['defer', 'false']);
+      bvJsScriptAttrs.push(['defer', 'false']);
     }
 
     if (!foundAttrs.async) {
-      scriptAttrs.push(['async', 'false']);
+      bvJsScriptAttrs.push(['async', 'false']);
     }
 
     this.setState({
-      scriptAttrs
+      bvJsScriptAttrs
     });
   }
 
@@ -87,9 +87,17 @@ class ExtensionBody extends React.Component {
   }
 
   parseResponse = text => {
-    const resourceDetails = {};
+    const resourceDetails = {}, { resourceName } = this.state;
 
-    if (this.state.resourceName === 'PRR') {
+    if (resourceName === 'bv.js') {
+      resourceDetails.capabilitiesArr = text.split('*/')[0].match(/[A-Za-z]+?_?[A-Za-z]+@[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/g);
+      resourceDetails.client = /client:"([A-Za-z0-9-_]*)"/.exec(text)[1];
+      resourceDetails.site = /site:"([A-Za-z0-9-_]+)"/.exec(text)[1];
+      resourceDetails.environment = /environment:"([a-z]+)"/.exec(text)[1];
+      resourceDetails.locale = /locale:"([a-z]+_[A-Z]+)"/.exec(text)[1];
+      resourceDetails.buildTime = text.match(/\b(?:(?:Mon)|(?:Tues?)|(?:Wed(?:nes)?)|(?:Thur?s?)|(?:Fri)|(?:Sat(?:ur)?)|(?:Sun))(?:day)?\b[:\-,]?\s*[a-zA-Z]{3,9}\s+\d{1,2}\s*,?\s*\d{4} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} GMT\+[0-9]{4}/g);
+      resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/)
+    } else if (resourceName === 'PRR') {
       let configuration;
 
       try {
@@ -107,19 +115,44 @@ class ExtensionBody extends React.Component {
       catch (e) {
         console.error(e)
       }
-    } else if (this.state.resourceName === 'Firebird') {
-      resourceDetails.version = /version="([0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2})"/.exec(text)[1]
+    } else if (resourceName === 'Firebird') {
+      let configuration;
+      
+      try {
+        configuration = new Function('return' + /e\.exports=({rawFirebirdConfig:.*\(UTC\)"})/.exec(text)[1])();
+        const { rawFirebirdConfig } = configuration;
+
+        resourceDetails.version = configuration.firebirdVersion;
+        resourceDetails.env = configuration.env;
+        resourceDetails.siteId = configuration.siteId;
+        resourceDetails.buildTime = configuration.date;
+
+        const { implementations: { weights } } = rawFirebirdConfig;
+        resourceDetails.implementations = [];
+        Object.keys(weights).forEach(implementation => {
+          const implementationObj = {};
+          const config = rawFirebirdConfig.configs[implementation]
+
+          implementationObj.locale = config.locale;
+          implementationObj.containers = {
+            ...config.containers
+          };
+          implementationObj.displayCode = config.displaycode;
+          implementationObj.clientName = config.clientname;
+          implementationObj.piiDataRegion = config.piiDataRegion;
+          implementationObj.deploymentId = config.deploymentId;
+          implementationObj.deploymentPath = config.deploymentPath;
+          implementationObj.deploymentVersion = config.deploymentVersion;
+          implementationObj.revision = config.revision;
+
+          resourceDetails.implementations.push({ [implementation]: implementationObj })
+        })
+      }
+      catch (e) {
+        console.error(e)
+      }
     } else {
       resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/);
-    }
-
-    if (this.state.resourceName === 'bv.js') {
-      resourceDetails.capabilitiesArr = text.split('*/')[0].match(/[A-Za-z]+?_?[A-Za-z]+@[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/g);
-      resourceDetails.client = /client:"([A-Za-z0-9-_]*)"/.exec(text)[1];
-      resourceDetails.site = /site:"([A-Za-z0-9-_]+)"/.exec(text)[1];
-      resourceDetails.environment = /environment:"([a-z]+)"/.exec(text)[1];
-      resourceDetails.locale = /locale:"([a-z]+_[A-Z]+)"/.exec(text)[1];
-      resourceDetails.buildTime = text.match(/\b(?:(?:Mon)|(?:Tues?)|(?:Wed(?:nes)?)|(?:Thur?s?)|(?:Fri)|(?:Sat(?:ur)?)|(?:Sun))(?:day)?\b[:\-,]?\s*[a-zA-Z]{3,9}\s+\d{1,2}\s*,?\s*\d{4} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} GMT\+[0-9]{4}/g);
     }
 
     return resourceDetails;
@@ -150,7 +183,7 @@ class ExtensionBody extends React.Component {
             selectedResource={selectedResource}
             handleClick={this.handleClick}
             resetVersion={this.resetVersion}
-            scriptAttrs={this.state.scriptAttrs}
+            bvJsScriptAttrs={this.state.bvJsScriptAttrs}
             getBvJsScriptTag={this.getBvJsScriptTag}
           />
         ) : (
@@ -169,7 +202,7 @@ class ExtensionBody extends React.Component {
               BV={BV}
               $BV={$BV}
               getBvJsScriptTag={this.getBvJsScriptTag}
-              scriptAttrs={this.state.scriptAttrs}
+              bvJsScriptAttrs={this.state.bvJsScriptAttrs}
               changed={changed}
             />
             <PerfMarksList

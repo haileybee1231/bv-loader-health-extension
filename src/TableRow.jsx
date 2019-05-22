@@ -22,7 +22,7 @@ const TableRow = props => {
           : props.name
         }:
         </td>
-      <td style={{ paddingLeft: '4px', wordBreak: 'break-word' }}>{props.value}</td>
+      <td style={{ paddingLeft: '4px', wordBreak: props.doNotBreak ? '' : 'break-word' }}>{props.value}</td>
     </tr>
   )
 }

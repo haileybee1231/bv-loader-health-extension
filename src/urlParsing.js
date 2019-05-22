@@ -11,7 +11,6 @@ const magpieJsVersion = /magpieJsVersion=([\d.]+)/;
 
 const dict = {
   'bv.js': 'bvjs',
-  'bv-primary': 'firebird',
   'rating_summary': 'rating_summary',
   'reviews-config': 'reviews',
   'questions-config': 'questions',
@@ -37,6 +36,8 @@ const bv_analytics_arr = [
   magpieValidationJSON,
 ]
 
+let foundBVApi = false;
+
 export const isMagpieGif = url => url.match(magpieGif);
 
 export const isMagpieValidationJSON = url => url.match(magpieValidationJSON);
@@ -49,8 +50,11 @@ export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
   (url.match(/\/a.gif|\/a.json/) && !hasFirstParty && !hasThirdParty);
 
 export const checkRequest = url => {
-  if (url.includes('ugc.bazaarvoice.com/static/') && url.includes('/bvapi.js')) {
-    return { resource: 'prr' }
+  if (url.includes('ugc.bazaarvoice.com/static/') && url.includes('/bvapi.js') && !foundBVApi) {
+    foundBVApi = true;
+    return {
+      resource: ['firebird', 'prr']
+    }
   }
 
   for (let i = 0; i < resourceArr.length; i++) {
