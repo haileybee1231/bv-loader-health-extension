@@ -21,6 +21,7 @@ class Accordion extends React.Component {
       propArr,
       name,
       entryType,
+      contentType
     } = this.props;
     return (
       <React.Fragment>
@@ -30,7 +31,7 @@ class Accordion extends React.Component {
         >
           <a>
             <div>
-              {this.props.index + 1}. {cl ? cl : name}: {bvProduct ? bvProduct : ''}
+              {this.props.index + 1}. {cl ? cl : name}: {bvProduct ? bvProduct : entryType || contentType}
             </div>
             <i className={`icon-${this.state.open ? 'minus' : 'plus'}`} style={{ float: 'right', marginTop: '-20px' }}></i>
           </a>

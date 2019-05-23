@@ -16,14 +16,14 @@
     {
       "run_at": "document_start",
       "matches": ["<all_urls>"],
-      "js": [
-        "dist/popup.js"
-      ],
       "css": [
         "css/main.css",
         "css/bvbootstrap/css/bootstrap.min.css",
         "css/bvbootstrap/css/bvglyphs.css",
         "css/bvbootstrap/css/font-awesome.css"
+      ],
+      "js": [
+        "dist/popup.js"
       ]
     }
   ],

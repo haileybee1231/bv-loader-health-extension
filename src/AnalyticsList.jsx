@@ -45,13 +45,16 @@ const AnalyticsList = props => {
           </table>
           <div style={{ width: '100%', margin: 'auto' }}>
               {analyticsArr.map((analyticEventTuple, index) => {
-                const propArr = transformAnalytics(analyticEventTuple[1][0]);
-                const { cl, bvProduct, name } = analyticEventTuple[1][0];
+                const value = analyticEventTuple[1][0].__wrapped__ || analyticEventTuple[1][0];
+                const propArr = transformAnalytics(value);
+                const { cl, bvProduct, name, contentType } = value;
+
                 return (
                   <Accordion
                     propArr={propArr}
                     cl={cl}
                     bvProduct={bvProduct || name}
+                    contentType={contentType}
                     key={index}
                     index={index}
                   />
