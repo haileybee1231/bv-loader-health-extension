@@ -24,7 +24,7 @@ class GlobalsList extends React.Component {
   }
 
   pollForContainers = (interval, containerNodeList) => {
-    containerNodeList = document.querySelectorAll('[data-bv-show');
+    containerNodeList = document.querySelectorAll('[data-bv-show]');
     if (containerNodeList.length && this.props.BV) {
       this.setGlobalsState('BV', containerNodeList);
     } else {
@@ -125,13 +125,13 @@ class GlobalsList extends React.Component {
 
     return (
       <React.Fragment>
-        <h2
+        <h3
           onClick={() => toggleSection('globals')}
           style={{ cursor: 'pointer' }}
         >
           <i className={globalsOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
           Globals
-        </h2>
+        </h3>
         {globalsOpen && (
           <React.Fragment>
             <h4>Containers</h4>

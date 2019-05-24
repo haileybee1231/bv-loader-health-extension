@@ -1,3 +1,6 @@
 package-lock.json
 node_modules/
-public/dist/
+public/dist/fonts
+public/dist/background.js
+public/dist/getBVScript.js
+public/dist/popup.js

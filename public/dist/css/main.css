@@ -70,7 +70,7 @@ a {
   text-decoration:none;
 }
 
-.inline-headers h1, .inline-headers em {
+.inline-headers h2, .inline-headers em {
   display: inline-block;
   vertical-align: baseline;
 }

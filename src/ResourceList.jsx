@@ -33,13 +33,13 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
 
   return (
     <React.Fragment>
-      <h2
+      <h3
         onClick={() => toggleSection('resources')}
         style={{ cursor: 'pointer' }}
       >
         <i className={resourcesOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
         Resources
-      </h2>
+      </h3>
       {resourcesOpen && (
         <table style={{ width: '80%', margin: 'auto' }}>
           <tbody>

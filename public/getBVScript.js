@@ -12,7 +12,7 @@ const sendMessage = type => new Promise(resolve => setTimeout(() => {
     resolve();
   }
   catch (e) {
-    sendMessage();
+    console.error(e);
   }
 }, 1500));
 
@@ -23,10 +23,11 @@ const getBVObject = () => {
     return;
   }
 
+  const { global, options } = BV;
+
   let dataEnv, serverEnv, client, locale, siteId, SystemJS;
 
-  if (BV.global) {
-    const { global } = BV;
+  if (global) {
 
     dataEnv = global.dataEnvironment;
     serverEnv = global.serverEnvironment;
@@ -37,7 +38,6 @@ const getBVObject = () => {
   }
 
   return {
-    ...BV,
     global: {
       dataEnv,
       serverEnv,
@@ -45,7 +45,12 @@ const getBVObject = () => {
       locale,
       siteId,
       SystemJS
-    }
+    },
+    options: {
+      ...options
+    },
+    pixel: BV.pixel,
+    _render: BV._render
   }
 }
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { createPortal } from 'react-dom';
 import _cloneDeep from 'lodash/cloneDeep'
 import ExtensionHeader from './ExtensionHeader.jsx';
 import ExtensionBody from './ExtensionBody.jsx';
+import ShadowDOM from 'react-shadow';
 
 import { checkRequest, parseAnalyticsEvent } from './urlParsing';
 
@@ -37,10 +37,6 @@ class Popup extends React.Component {
       selectedResource: null,
       changed: true
     };
-
-    this.root = document.getElementById('bv-loader-health-extension-root');
-    this.el = document.createElement('div')
-    this.el.id = 'bv_sidebar_container'
   }
 
   injectScriptAndRetrieveBV = () => {
@@ -88,28 +84,26 @@ class Popup extends React.Component {
   }
 
   componentWillMount() {
-    document.addEventListener(
+    this.bvObjListener = document.addEventListener(
       'bv_obj_retrieved',
       bvObj => this.parseGlobalObject(bvObj, 'BV')
     );
 
-    document.addEventListener(
+    this.$bvObjListener = document.addEventListener(
       '$bv_obj_retrieved',
       $bvObj => this.parseGlobalObject($bvObj, '$BV')
     );
-  }
 
-  componentDidMount() {
+
     setTimeout(() => {
       this.getNewPerfMarks();
     }, 5000);
-
-    this.injectScriptAndRetrieveBV()
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       switch(request.action) {
         case 'toggle':
           this.setState({ open: !this.state.open });
+          this.injectScriptAndRetrieveBV()
           break;
         case 'capture_events':
           const {
@@ -169,10 +163,9 @@ class Popup extends React.Component {
     });
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (this.state.open !== nextState.open && !nextState.open) {
-      this.root.removeChild(this.el)
-    }
+  componentWillUnmount() {
+    document.removeEventListener(this.bvObjListener);
+    document.removeEventListener(this.$bvObjListener);
   }
 
   getNewPerfMarks = () => {
@@ -197,8 +190,6 @@ class Popup extends React.Component {
 
   render() {
     if (this.state.open) {
-      this.root.appendChild(this.el)
-
       const {
         resources,
         analytics,
@@ -214,27 +205,39 @@ class Popup extends React.Component {
         $BV
       } = this.state;
 
-      return createPortal(
-        <React.Fragment>
-          <ExtensionHeader />
-          <ExtensionBody
-            resources={resources}
-            analytics={analytics}
-            perfMarks={perfMarks}
-            totalAnalytics={totalAnalytics}
-            totalPerfMarks={totalPerfMarks}
-            firstParty={firstParty}
-            thirdParty={thirdParty}
-            anonymous={anonymous}
-            selectedResource={selectedResource}
-            BV={BV}
-            $BV={$BV}
-            changed={changed}
-            handleResourceClick={this.handleResourceClick}
-          />
-        </React.Fragment>,
-        this.el
-      )
+      return (
+        <ShadowDOM
+          include={[
+            chrome.extension.getURL("/dist/css/bvbootstrap/css/bootstrap.min.css"),
+            chrome.extension.getURL("/dist/css/main.css"),
+            chrome.extension.getURL("/dist/css/bvbootstrap/css/bvglyphs.css"),
+            chrome.extension.getURL("/dist/css/bvbootstrap/css/font-awesome.css"),
+          ]}
+        >
+          <div>
+            {this.state.open && (
+              <div id="bv_sidebar_container">
+                <ExtensionHeader />
+                <ExtensionBody
+                  resources={resources}
+                  analytics={analytics}
+                  perfMarks={perfMarks}
+                  totalAnalytics={totalAnalytics}
+                  totalPerfMarks={totalPerfMarks}
+                  firstParty={firstParty}
+                  thirdParty={thirdParty}
+                  anonymous={anonymous}
+                  selectedResource={selectedResource}
+                  BV={BV}
+                  $BV={$BV}
+                  changed={changed}
+                  handleResourceClick={this.handleResourceClick}
+                />
+              </div>
+            )}
+          </div>
+        </ShadowDOM>
+        )
     } else {
       return null;
     }

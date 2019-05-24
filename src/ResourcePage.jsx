@@ -54,7 +54,7 @@ class ResourcePage extends React.Component {
           }}
         ><i className='icon-arrow-left'></i></a>
         <div className="inline-headers">
-          <h1 style={{ marginRight: '4px' }}>{resourceName}</h1>
+          <h2 style={{ marginRight: '4px' }}>{resourceName}</h2>
           <em>{`${version ? 'v' : 'Resource not found.'}${version}`}</em>
         </div>
         <div>

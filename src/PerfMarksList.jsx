@@ -21,16 +21,16 @@ const PerfMarksList = props => {
 
   return (
     <React.Fragment>
-        <h2
+        <h3
           onClick={() => toggleSection('perfMarks')}
           style={{ cursor: 'pointer' }}
         >
           <i className={perfMarksOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
           bv-loader Perf Marks ({totalPerfMarks})
-        </h2>
+        </h3>
         {perfMarksOpen && (
           totalPerfMarks ? (
-            <div style={{ width: '100%', margin: 'auto' }}>
+            <div style={{ width: '100%', margin: 'auto', maxHeight: '500px', overflowY: 'scroll' }}>
               {perfMarks.map((perfMark, index) => {
                 const {
                   name,

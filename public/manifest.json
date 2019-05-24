@@ -17,10 +17,8 @@
       "run_at": "document_start",
       "matches": ["<all_urls>"],
       "css": [
-        "css/main.css",
-        "css/bvbootstrap/css/bootstrap.min.css",
-        "css/bvbootstrap/css/bvglyphs.css",
-        "css/bvbootstrap/css/font-awesome.css"
+        "dist/css/bvbootstrap/css/bvglyphs.css",
+        "dist/css/bvbootstrap/css/font-awesome.css"
       ],
       "js": [
         "dist/popup.js"
@@ -38,8 +36,9 @@
   ],
   "content_security_policy": "script-src 'self' 'sha256-GgRxrVOKNdB4LrRsVPDSbzvfdV4UqglmviH9GoBJ5jk='; object-src 'self'",
   "web_accessible_resources": [
-    "bvbootstrap/*",
+    "dist/*",
     "dist/fonts/*",
+    "font/*",
     "assets/images/*",
     "getBVScript.js"
   ]

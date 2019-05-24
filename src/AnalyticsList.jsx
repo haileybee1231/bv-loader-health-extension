@@ -27,13 +27,13 @@ const AnalyticsList = props => {
 
   return (
     <React.Fragment>
-      <h2
+      <h3
         onClick={() => toggleSection('analytics')}
         style={{ cursor: 'pointer' }}
       >
         <i className={analyticsOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
         Analytics Events ({totalAnalytics})
-      </h2>
+      </h3>
       {analyticsOpen && (
         <React.Fragment>
           <table style={{ width: '80%', margin: 'auto' }}>
