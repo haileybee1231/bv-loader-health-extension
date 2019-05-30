@@ -2,6 +2,7 @@ import React from 'react';
 import BvJSDetails from './BvJsDetails.jsx';
 import PRRDetails from './PRRDetails.jsx';
 import FirebirdDetails from './FirebirdDetails.jsx';
+import AppDetails from './AppDetails.jsx';
 
 class ResourcePage extends React.Component {
   componentDidMount() {
@@ -23,6 +24,7 @@ class ResourcePage extends React.Component {
       handleClick,
       resourceName,
       resourceDetails = {},
+      appDetails,
       resetVersion,
       selectedResource,
       bvJsScriptAttrs
@@ -84,6 +86,11 @@ class ResourcePage extends React.Component {
             env={env}
             siteId={siteId}
             implementations={implementations}
+          />
+        )}
+        {appDetails && (
+          <AppDetails
+            appDetails={appDetails}
           />
         )}
         </div>

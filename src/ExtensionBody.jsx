@@ -159,10 +159,22 @@ class ExtensionBody extends React.Component {
   }
 
   render() {
+    const appMap = {
+      'Inline Ratings': 'inline_ratings',
+      'Questions': 'questions',
+      'Rating Summary': 'rating_summary',
+      'Review Highlights': 'review_highlights',
+      'Reviews': 'reviews',
+      'Seller Ratings': 'seller_ratings',
+      'Spotlights': 'spotlights',
+      'Product Picker': 'product_picker'
+    };
+  
     const {
       resources,
       analytics,
       perfMarks,
+      apps,
       changed,
       totalAnalytics,
       totalPerfMarks,
@@ -180,6 +192,7 @@ class ExtensionBody extends React.Component {
           <ResourcePage
             resourceName={this.state.resourceName}
             resourceDetails={this.state.resourceDetails}
+            appDetails={appMap[this.state.resourceName] ? apps[appMap[this.state.resourceName]] : null}
             selectedResource={selectedResource}
             handleClick={this.handleClick}
             resetVersion={this.resetVersion}

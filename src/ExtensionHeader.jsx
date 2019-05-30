@@ -16,7 +16,7 @@ class ExtensionHeader extends React.Component {
       >
         <div className="navbar-inner">
           <div className="container-fluid">
-            <div className="brand brand-bv"></div>
+            <div className="brand brand-bv" style={{ lineHeight: '28.5714px' }}></div>
             <p className="navbar-text no-float">bv-loader Client Health Inspector</p>
           </div>
         </div>

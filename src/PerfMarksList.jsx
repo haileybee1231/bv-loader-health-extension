@@ -30,7 +30,7 @@ const PerfMarksList = props => {
         </h3>
         {perfMarksOpen && (
           totalPerfMarks ? (
-            <div style={{ width: '100%', margin: 'auto', maxHeight: '500px', overflowY: 'scroll' }}>
+            <div style={{ width: '100%', margin: 'auto', maxHeight: '490px', overflowY: 'scroll' }}>
               {perfMarks.map((perfMark, index) => {
                 const {
                   name,

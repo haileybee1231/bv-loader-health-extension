@@ -25,10 +25,13 @@ class Popup extends React.Component {
         reviews: null,
         questions: null,
         inline_ratings: null,
-        spotlights: null
+        spotlights: null,
+        product_picker: null
       },
+      apps: {},
       BV: null,
       $BV: null,
+      scriptInjected: false,
       analytics: {},
       perfMarks: null,
       firstParty: false,
@@ -43,11 +46,14 @@ class Popup extends React.Component {
     const s = document.createElement('script');
     s.src = chrome.extension.getURL('/getBVScript.js');
     (document.head||document.documentElement).appendChild(s);
+    this.setState({
+      scriptInjected: true
+    });
     s.onload = () => s.remove();
   }
 
   parseGlobalObject = ({ detail }, namespace) => {
-    try {
+     try {
       const parsed = JSON.parse(detail) || {};
       const resourcesCopy = _cloneDeep(this.state.resources);
 
@@ -56,7 +62,7 @@ class Popup extends React.Component {
           this.setState({
             resources: {
               ...resourcesCopy,
-              prr: false
+              prr: false,
             }
           });
         } else {
@@ -77,10 +83,40 @@ class Popup extends React.Component {
           changed: false
         })
       )
+
+      if (namespace === 'BV') {
+        this.parseApps(parsed)
+      }
     }
     catch (e) {
       console.error(e);
     }
+  }
+
+  parseApps = BV => {
+    const apps = [
+      'inline_ratings',
+      'questions',
+      'rating_summary',
+      'review_highlights',
+      'reviews',
+      'seller_ratings',
+      'spotlights',
+      'product_picker'
+    ];
+
+    apps.forEach(app => {
+      if (BV[app]) {
+        this.setState({
+          apps: {
+            ...this.state.apps,
+            [app]: {
+              ...BV[app]
+            }
+          }
+        })
+      }
+    })
   }
 
   componentWillMount() {
@@ -91,19 +127,22 @@ class Popup extends React.Component {
 
     this.$bvObjListener = document.addEventListener(
       '$bv_obj_retrieved',
-      $bvObj => this.parseGlobalObject($bvObj, '$BV')
+      $bvObj => {
+        this.parseGlobalObject($bvObj, '$BV')
+      }
     );
-
 
     setTimeout(() => {
       this.getNewPerfMarks();
     }, 5000);
 
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    this.chromeEventListener = chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       switch(request.action) {
         case 'toggle':
           this.setState({ open: !this.state.open });
-          this.injectScriptAndRetrieveBV()
+          if (!this.state.scriptInjected) {
+            this.injectScriptAndRetrieveBV()
+          }
           break;
         case 'capture_events':
           const {
@@ -137,9 +176,14 @@ class Popup extends React.Component {
                   [resource]: request.data
                 },
                 changed: true,
-              }, this.setState({
-                changed: false
-              }))
+              }, () =>
+                setTimeout(
+                  () => this.setState({
+                    changed: false
+                  }),
+                  500
+                )
+              );
             }
           } else if (analytics_event) {
             this.setState({
@@ -164,8 +208,9 @@ class Popup extends React.Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener(this.bvObjListener);
-    document.removeEventListener(this.$bvObjListener);
+    document.removeEventListener('bv_obj_retrieved', this.bvObjListener);
+    document.removeEventListener('$bv_obj_retrieved', this.$bvObjListener);
+    chrome.runtime.removeEventListener(this.chromeEventListener);
   }
 
   getNewPerfMarks = () => {
@@ -193,6 +238,7 @@ class Popup extends React.Component {
       const {
         resources,
         analytics,
+        apps,
         perfMarks,
         totalAnalytics,
         totalPerfMarks,
@@ -218,21 +264,31 @@ class Popup extends React.Component {
             {this.state.open && (
               <div id="bv_sidebar_container">
                 <ExtensionHeader />
-                <ExtensionBody
-                  resources={resources}
-                  analytics={analytics}
-                  perfMarks={perfMarks}
-                  totalAnalytics={totalAnalytics}
-                  totalPerfMarks={totalPerfMarks}
-                  firstParty={firstParty}
-                  thirdParty={thirdParty}
-                  anonymous={anonymous}
-                  selectedResource={selectedResource}
-                  BV={BV}
-                  $BV={$BV}
-                  changed={changed}
-                  handleResourceClick={this.handleResourceClick}
-                />
+                {this.state.resources.bvjs ? (
+                  <ExtensionBody
+                    resources={resources}
+                    apps={apps}
+                    analytics={analytics}
+                    perfMarks={perfMarks}
+                    totalAnalytics={totalAnalytics}
+                    totalPerfMarks={totalPerfMarks}
+                    firstParty={firstParty}
+                    thirdParty={thirdParty}
+                    anonymous={anonymous}
+                    selectedResource={selectedResource}
+                    BV={BV}
+                    $BV={$BV}
+                    changed={changed}
+                    handleResourceClick={this.handleResourceClick}
+                  />
+                ) : (
+                  <div style={{ textAlign: 'center' }}>
+                    <h3>
+                      bv-loader not detected.
+                    </h3>
+                  </div>
+                )
+              }
               </div>
             )}
           </div>

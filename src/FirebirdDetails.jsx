@@ -1,29 +1,6 @@
 import React from 'react';
 import TableRow from './TableRow.jsx';
 
-// resourceDetails.version = configuration.firebirdVersion;
-// resourceDetails.env = configuration.env;
-// resourceDetails.siteId = configuration.siteId;
-// resourceDetails.buildTime = configuration.date;
-
-// const { implementations: { weights } } = rawFirebirdConfig;
-// Object.keys(weights).forEach(implementation => {
-//   const entry = resourceDetails[implementation] = {};
-//   const config = rawFirebirdConfig.configs[implementation]
-
-//   entry.locale = config.locale;
-//   entry.containers = {
-//     ...config.containers
-//   };
-//   entry.displayCode = config.dislpayCode;
-//   entry.clientName = config.clientName;
-//   entry.piiDataRegion = config.piiDataRegion;
-//   entry.deploymentId = config.deploymentId;
-//   entry.deploymentPath = config.deploymentPath;
-//   entry.deploymentVersion = config.deploymentVersion;
-//   entry.revision = config.revision;
-// })
-
 const FirebirdDetails = props => {
   const {
     env,

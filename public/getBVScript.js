@@ -1,4 +1,4 @@
-const sendMessage = type => new Promise(resolve => setTimeout(() => {
+const sendMessage = type => new Promise(resolve => {
   const is$ = type === '$';
   try {
     document.dispatchEvent(
@@ -14,9 +14,20 @@ const sendMessage = type => new Promise(resolve => setTimeout(() => {
   catch (e) {
     console.error(e);
   }
-}, 1500));
+});
 
 const getBVObject = () => {
+  const apps = [
+    'inline_ratings',
+    'questions',
+    'rating_summary',
+    'review-highlights',
+    'review_highlights',
+    'reviews',
+    'seller_ratings',
+    'spotlights',
+    'product_picker'
+  ];
   const { BV } = window;
 
   if (!BV) {
@@ -37,6 +48,24 @@ const getBVObject = () => {
     SystemJS = global.SystemJS;
   }
 
+  const appMap = {};
+
+  apps.forEach(app => {
+    const appNamespace = BV[app];
+    if (appNamespace) {
+      app === 'review-highlights' && !appMap.review_highlights ? app = 'review_highlights' : null;
+
+      appMap[app] = {
+        config: {
+          ...appNamespace.config,
+        },
+        _analytics: {
+          ...appNamespace._analytics
+        }
+      }
+    }
+  })
+
   return {
     global: {
       dataEnv,
@@ -48,6 +77,9 @@ const getBVObject = () => {
     },
     options: {
       ...options
+    },
+    ...{
+      ...appMap
     },
     pixel: BV.pixel,
     _render: BV._render
@@ -96,4 +128,6 @@ const get$BVObject = () => {
   };
 }
 
-sendMessage().then(() => sendMessage('$'));
+setTimeout(() => {
+  sendMessage().then(() => sendMessage('$'));
+}, 2500);
