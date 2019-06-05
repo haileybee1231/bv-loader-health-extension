@@ -1,5 +1,5 @@
 import React from 'react';
-import TableRow from './TableRow.jsx';
+import TableRow from '../Generic/TableRow.jsx';
 
 const BvJSDetails = ({
   capabilitiesArr,

@@ -28,7 +28,7 @@ const resourceArr = [
   'questions-config',
   'spotlights/scout',
   'analytics-js',
-  'bv-analytics'
+  'bv-analytics',
 ]
 
 const bv_analytics_arr = [
@@ -57,11 +57,24 @@ export const checkRequest = url => {
     }
   }
 
+  if (url.includes('bazaarvoice') && !url.includes('gif')) {
+    if (url.includes('render')) {
+      return {
+        resource: 'render'
+      }
+    } else if (url.includes('components')) {
+        return {
+          resource: 'components'
+        }
+    }
+  }
+
   for (let i = 0; i < resourceArr.length; i++) {
     if (url.includes(resourceArr[i])) {
-      if (resourceArr[i] === 'bv.js' && url.includes('firebird')) {
+      if ((resourceArr[i] === 'bv.js' && url.includes('firebird')) || url.includes('.gif')) {
         return { resource: undefined }
       }
+
       return { resource: dict[resourceArr[i]] }
     }
   }

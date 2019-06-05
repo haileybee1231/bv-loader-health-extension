@@ -3,7 +3,14 @@ import React from 'react';
 const TableRow = props => {
   return (
     <tr>
-      <td>
+      <td
+        style={{
+          whiteSpace: 'nowrap',
+          width: '1%',
+          paddingLeft: '4px',
+          paddingRight: '4px'
+        }}
+      >
         {props.isResource && props.value !== 'false'
           ? <a
               style={{ color: '#008fb2' }}

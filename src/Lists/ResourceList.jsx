@@ -1,5 +1,5 @@
 import React from 'react';
-import TableRow from './TableRow.jsx';
+import TableRow from '../Generic/TableRow.jsx';
 
 const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) => {
   const {
@@ -26,7 +26,7 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
     ['Questions', questions],
     ['Review Highlights', review_highlights],
     ['Spotlights', spotlights],
-    ['In Flex Pilot', window.location.href.includes('bv_segment=layouts_pilot')]
+    ['Flex', window.location.href.includes('bv_segment=layouts_pilot')]
   ]
 
   const trueOrFalse = condition => condition ? <em>true</em> : 'false';

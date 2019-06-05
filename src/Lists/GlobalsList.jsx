@@ -1,5 +1,5 @@
 import React from 'react';
-import TableRow from './TableRow.jsx';
+import TableRow from '../Generic/TableRow.jsx';
 import _get from 'lodash/get'
 
 class GlobalsList extends React.Component {
@@ -41,22 +41,33 @@ class GlobalsList extends React.Component {
     if (namespace && resource === 'BV') {
       const bvJsScriptAttrs = this.props.getBvJsScriptTag();
 
+      const getProp = path => _get(namespace, path);
+
       const globalPath = 'global';
       const optionsPath = 'options';
       const apiConfigPath = `${optionsPath}.apiconfig`;
       const _renderPath = '_render';
 
-      const dataEnv = _get(namespace, `${globalPath}.dataEnv`);
-      const serverEnv = _get(namespace, `${globalPath}.serverEnv`);
-      const siteId = _get(namespace, `${globalPath}.siteId`);
+      const dataEnv = getProp(`${globalPath}.dataEnv`);
+      const serverEnv = getProp(`${globalPath}.serverEnv`);
+      const siteId = getProp(`${globalPath}.siteId`);
 
-      const bvLocalKey = _get(namespace, `${apiConfigPath}.bvLocalKey`);
-      const displayCode = _get(namespace, `${apiConfigPath}.displayCode`);
-      const limit = _get(namespace, `${apiConfigPath}.limit`);
-      const passKey = _get(namespace, `${apiConfigPath}.passKey`);
+      const bvLocalKey = getProp(`${apiConfigPath}.bvLocalKey`);
+      const displayCode = getProp(`${apiConfigPath}.displayCode`);
+      const limit = getProp(`${apiConfigPath}.limit`);
+      const passKey = getProp(`${apiConfigPath}.passKey`);
 
-      const pixel = _get(namespace, 'pixel');
-      const _render = _get(namespace, `${_renderPath}`);
+      const pixel = getProp('pixel');
+      const _render = getProp(`${_renderPath}`);
+
+      const analyticsVendors = getProp(`${optionsPath}.analytics.vendors`);
+      const bvLocal = getProp(`${optionsPath}.bvLocal.enabled`);
+      const deploymentPath = getProp(`${optionsPath}.deploymentPath`);
+      const deploymentVersion = getProp(`${optionsPath}.deploymentVersion`);
+      const fingerprintingEnabled = getProp(`${optionsPath}.fingerprintingEnabled`);
+      const pageSize = getProp(`${optionsPath}.page.size`);
+      const sci = getProp(`${optionsPath}.sci.enabled`);
+      const trackingDataRegion = getProp(`${optionsPath}.trackingDataRegion`);
 
       if (typeof namespace === 'string') {
         this.setState({ [resource]: namespace });
@@ -70,17 +81,35 @@ class GlobalsList extends React.Component {
           'Site ID': siteId,
           'API KEY': passKey,
           'BV Local Key': bvLocalKey,
+          'BV Local Enabled': String(!!bvLocal),
           'Display Code': displayCode,
           Limit: limit,
           _render: !!_render,
-          Pixel: !!pixel
+          Pixel: !!pixel,
+          'Deployment Path': deploymentPath,
+          'Deployment Version': deploymentVersion,
+          'Fingerprinting Enabled': String(!!fingerprintingEnabled),
+          'Page Size': pageSize,
+          'SCI Trackers Enabled': sci,
+          'Analytics Vendors': analyticsVendors ? Object.keys(analyticsVendors).join(', ') : false,
+          'Tracking Data Region': trackingDataRegion
         },
         containers,
         bvJsScriptAttrs
       });
-    }
 
-    if (namespace && resource === '$BV') {
+      this.props.getAnalyticsDetails({
+        pixel: !!pixel,
+        fingerprintingEnabled: !!fingerprintingEnabled,
+        sci: !!sci,
+        analyticsVendors,
+        trackingDataRegion
+      });
+
+      this.props.getFlexDetails({
+        layouts: _render.layouts
+      });
+    } else if (namespace && resource === '$BV') {
       const InternalPath = 'Internal';
       const _magpieSettingsPath = '_magpieSettings';
 
@@ -136,21 +165,17 @@ class GlobalsList extends React.Component {
           <React.Fragment>
             <h4>Containers</h4>
             {containers.length ? (
-              <React.Fragment>
-                <table style={{ width: '80%', margin: 'auto' }}>
-                  {containers.map((container, index) => {
-                    const containerCopy = { ...container };
-                    delete containerCopy.bvShow;
-  
-                    const containerArr = Object.entries(containerCopy);
-  
-                    return (
-                      <React.Fragment key={index}>
-                        <thead style={{ padding: 'auto' }}>
-                          <tr>
-                            <th>data-bv-show: <em>{container.bvShow}</em></th>
-                          </tr>
-                        </thead>
+              <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                {containers.map((container, index) => {
+                  const containerCopy = { ...container };
+                  delete containerCopy.bvShow;
+
+                  const containerArr = Object.entries(containerCopy);
+
+                  return (
+                    <div key={index} style={{ width: '80%', margin: 'auto' }}>
+                      <b style={{ fontFamily: 'GibsonRegular,Helvetica,Arial,sans-serif', fontSize: '14px' }}>data-bv-show: <em>{container.bvShow}</em></b>
+                      <table>
                         <tbody>
                           {containerArr.map((tuple, index) =>
                             <TableRow
@@ -160,11 +185,11 @@ class GlobalsList extends React.Component {
                             />
                           )}
                         </tbody>
-                      </React.Fragment>
-                    )
-                  })}
-                </table>
-              </React.Fragment>
+                      </table>
+                    </div>
+                  )
+                })}
+              </div>
             ) : (
               <img
                 src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}

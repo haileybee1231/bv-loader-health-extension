@@ -1,5 +1,5 @@
 import React from 'react';
-import Accordion from './Accordion.jsx';
+import Accordion from '../Generic/Accordion.jsx';
 
 const transformPerfMark = perfMarkObj => {
   const perfMarkArr = [];

@@ -39,7 +39,6 @@ const getBVObject = () => {
   let dataEnv, serverEnv, client, locale, siteId, SystemJS;
 
   if (global) {
-
     dataEnv = global.dataEnvironment;
     serverEnv = global.serverEnvironment;
     client = global.client;

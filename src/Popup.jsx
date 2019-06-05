@@ -4,7 +4,7 @@ import ExtensionHeader from './ExtensionHeader.jsx';
 import ExtensionBody from './ExtensionBody.jsx';
 import ShadowDOM from 'react-shadow';
 
-import { checkRequest, parseAnalyticsEvent } from './urlParsing';
+import { checkRequest, parseAnalyticsEvent } from './util/urlParsing';
 
 
 class Popup extends React.Component {
@@ -26,7 +26,9 @@ class Popup extends React.Component {
         questions: null,
         inline_ratings: null,
         spotlights: null,
-        product_picker: null
+        product_picker: null,
+        render: null,
+        components: null
       },
       apps: {},
       BV: null,
@@ -119,7 +121,7 @@ class Popup extends React.Component {
     })
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.bvObjListener = document.addEventListener(
       'bv_obj_retrieved',
       bvObj => this.parseGlobalObject(bvObj, 'BV')
@@ -152,6 +154,7 @@ class Popup extends React.Component {
             thirdParty,
             anonymous
           } = checkRequest(request.data.url);
+
           if (resource && !this.state.resources[resource]) {
             if (Array.isArray(resource)) {
               resource.forEach(possibility => {
@@ -205,6 +208,8 @@ class Popup extends React.Component {
           console.log("request: ", request)
       }
     });
+
+    chrome.runtime.sendMessage({ type: 'bv-loader-extension-mounted' });
   }
 
   componentWillUnmount() {
@@ -226,6 +231,11 @@ class Popup extends React.Component {
   handleResourceClick = resource => {
     if (resource === 'analyticsjs') {
       resource = 'bv_analytics';
+    } else if (resource === 'flex') {
+      this.setState({
+        selectedResource: [this.state.resources.render, this.state.resources.components]
+      });
+      return;
     }
 
     this.setState({
@@ -254,13 +264,14 @@ class Popup extends React.Component {
       return (
         <ShadowDOM
           include={[
+            chrome.extension.getURL("/dist/css/bvbootstrap/css/clean-slate.css"),
             chrome.extension.getURL("/dist/css/bvbootstrap/css/bootstrap.min.css"),
             chrome.extension.getURL("/dist/css/main.css"),
             chrome.extension.getURL("/dist/css/bvbootstrap/css/bvglyphs.css"),
             chrome.extension.getURL("/dist/css/bvbootstrap/css/font-awesome.css"),
           ]}
         >
-          <div>
+          <div className="bv-cleanslate">
             {this.state.open && (
               <div id="bv_sidebar_container">
                 <ExtensionHeader />

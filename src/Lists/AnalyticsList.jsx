@@ -1,6 +1,6 @@
 import React from 'react';
-import Accordion from './Accordion.jsx';
-import TableRow from './TableRow.jsx';
+import Accordion from '../Generic/Accordion.jsx';
+import TableRow from '../Generic/TableRow.jsx';
 
 const transformAnalytics = analyticsObj => {
   const analyticsArr = [];

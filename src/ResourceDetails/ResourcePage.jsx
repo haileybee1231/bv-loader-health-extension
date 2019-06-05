@@ -3,6 +3,8 @@ import BvJSDetails from './BvJsDetails.jsx';
 import PRRDetails from './PRRDetails.jsx';
 import FirebirdDetails from './FirebirdDetails.jsx';
 import AppDetails from './AppDetails.jsx';
+import AnalyticsDetails from './AnalyticsDetails.jsx';
+import FlexDetails from './FlexDetails.jsx';
 
 class ResourcePage extends React.Component {
   componentDidMount() {
@@ -25,6 +27,8 @@ class ResourcePage extends React.Component {
       resourceName,
       resourceDetails = {},
       appDetails,
+      flexDetails = {},
+      analyticsDetails = {},
       resetVersion,
       selectedResource,
       bvJsScriptAttrs
@@ -44,11 +48,11 @@ class ResourcePage extends React.Component {
       urlPathPrefix,
       siteId,
       env,
-      implementations
+      implementations,
     } = resourceDetails
 
     return (
-      <div style={{ paddingLeft: '10px', paddingTop: '10px' }}>
+      <div style={{ paddingLeft: '10px', paddingTop: '10px', paddingBottom: '20px' }}>
         <a
           onClick={() => {
             resetVersion();
@@ -57,7 +61,9 @@ class ResourcePage extends React.Component {
         ><i className='icon-arrow-left'></i></a>
         <div className="inline-headers">
           <h2 style={{ marginRight: '4px' }}>{resourceName}</h2>
-          <em>{`${version ? 'v' : 'Resource not found.'}${version}`}</em>
+          {resourceName !== 'Flex' && (
+            <em>{`${version ? 'v' : 'Resource not found.'}${version}`}</em>
+          )}
         </div>
         <div>
         {resourceName === 'bv.js' && (
@@ -86,6 +92,17 @@ class ResourcePage extends React.Component {
             env={env}
             siteId={siteId}
             implementations={implementations}
+          />
+        )}
+        {resourceName === 'analytics.js' && (
+          <AnalyticsDetails
+            analyticsDetails={analyticsDetails}
+          />
+        )}
+        {resourceName === 'Flex' && (
+          <FlexDetails
+            flexDetails={flexDetails}
+            resourceDetails={resourceDetails}
           />
         )}
         {appDetails && (

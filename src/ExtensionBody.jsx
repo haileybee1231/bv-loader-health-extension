@@ -1,9 +1,9 @@
 import React from 'react';
-import ResourceList from './ResourceList.jsx';
-import AnalyticsList from './AnalyticsList.jsx';
-import PerfMarksList from './PerfMarksList.jsx';
-import ResourcePage from './ResourcePage.jsx';
-import GlobalsList from './GlobalsList.jsx';
+import ResourcePage from './ResourceDetails/ResourcePage.jsx';
+import ResourceList from './Lists/ResourceList.jsx';
+import AnalyticsList from './Lists/AnalyticsList.jsx';
+import PerfMarksList from './Lists/PerfMarksList.jsx';
+import GlobalsList from './Lists/GlobalsList.jsx';
 class ExtensionBody extends React.Component {
   constructor(props) {
     super(props);
@@ -12,7 +12,9 @@ class ExtensionBody extends React.Component {
       showResource: false,
       resourceName: '',
       version: '',
-      resouceDetails: {},
+      resourceDetails: {},
+      flexDetails: null,
+      analyticsDetails: null,
       resourcesOpen: false,
       globalsOpen: false,
       perfMarksOpen: false,
@@ -23,7 +25,11 @@ class ExtensionBody extends React.Component {
 
   componentWillReceiveProps({ selectedResource }) {
     if (selectedResource && !this.state.version) {
-      this.getVersion(selectedResource.url)
+      if (Array.isArray(selectedResource)) {
+        this.getVersions(selectedResource.map(resource => resource.url.replace('.min', '') ));
+      } else {
+        this.getVersion(selectedResource.url);
+      }
     }
   }
 
@@ -44,7 +50,7 @@ class ExtensionBody extends React.Component {
     const str = `${section}Open`;
     this.setState({
       [str]: !this.state[str]
-    })
+    });
   }
 
   getBvJsScriptTag = () => {
@@ -84,6 +90,23 @@ class ExtensionBody extends React.Component {
           })
         })
       )
+  }
+
+  getVersions = urls => {
+    Promise.all(
+      urls.map(
+        url => fetch(url)
+      )
+    )
+      .then(responses => Promise.all(responses.map(res => res.text() )))
+        .then(texts => {
+          this.setState({
+            resourceDetails: {
+              render: texts[0],
+              components: texts[1]
+            }
+          })
+        })
   }
 
   parseResponse = text => {
@@ -151,11 +174,29 @@ class ExtensionBody extends React.Component {
       catch (e) {
         console.error(e)
       }
+    } else if (resourceName === 'analytics.js') {
+      resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/)
     } else {
       resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/);
     }
 
     return resourceDetails;
+  }
+
+  getAnalyticsDetails = analyticsDetails => {
+    if (!this.state.analyticsDetails) {
+      this.setState({
+        analyticsDetails
+      })
+    }
+  }
+
+  getFlexDetails = flexDetails => {
+    if (!this.state.flexDetails) {
+      this.setState({
+        flexDetails
+      })
+    }
   }
 
   render() {
@@ -193,6 +234,8 @@ class ExtensionBody extends React.Component {
             resourceName={this.state.resourceName}
             resourceDetails={this.state.resourceDetails}
             appDetails={appMap[this.state.resourceName] ? apps[appMap[this.state.resourceName]] : null}
+            analyticsDetails={this.state.analyticsDetails}
+            flexDetails={this.state.flexDetails}
             selectedResource={selectedResource}
             handleClick={this.handleClick}
             resetVersion={this.resetVersion}
@@ -200,7 +243,7 @@ class ExtensionBody extends React.Component {
             getBvJsScriptTag={this.getBvJsScriptTag}
           />
         ) : (
-          <div style={{ paddingLeft: '20px' }}>
+          <div style={{ paddingLeft: '20px', paddingBottom: '20px' }}>
             <ResourceList
               resources={resources}
               changed={changed}
@@ -216,6 +259,8 @@ class ExtensionBody extends React.Component {
               $BV={$BV}
               getBvJsScriptTag={this.getBvJsScriptTag}
               bvJsScriptAttrs={this.state.bvJsScriptAttrs}
+              getAnalyticsDetails={this.getAnalyticsDetails}
+              getFlexDetails={this.getFlexDetails}
               changed={changed}
             />
             <PerfMarksList
