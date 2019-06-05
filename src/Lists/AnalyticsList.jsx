@@ -2,16 +2,6 @@ import React from 'react';
 import Accordion from '../Generic/Accordion.jsx';
 import TableRow from '../Generic/TableRow.jsx';
 
-const transformAnalytics = analyticsObj => {
-  const analyticsArr = [];
-
-  for (const analytic in analyticsObj) {
-    analyticsArr.push([analytic, analyticsObj[analytic]]);
-  }
-
-  return analyticsArr;
-}
-
 const AnalyticsList = props => {
   const {
     analytics,
@@ -23,7 +13,7 @@ const AnalyticsList = props => {
     anonymous
   } = props;
   const trueOrFalse = condition => condition ? <em>true</em> : 'false';
-  const analyticsArr = transformAnalytics(analytics);
+  const analyticsArr = Object.entries(analytics);
 
   return (
     <React.Fragment>
@@ -45,8 +35,8 @@ const AnalyticsList = props => {
           </table>
           <div style={{ width: '100%', margin: 'auto' }}>
               {analyticsArr.map((analyticEventTuple, index) => {
-                const value = analyticEventTuple[1][0].__wrapped__ || analyticEventTuple[1][0];
-                const propArr = transformAnalytics(value);
+                const value = analyticEventTuple[1].__wrapped__ || analyticEventTuple[1];
+                const propArr = Object.entries(value);
                 const { cl, bvProduct, name, contentType } = value;
 
                 return (

@@ -7,6 +7,7 @@ const isFirstPartyNull =  /BVBRANDID=null|BVBRANDSID=null/;
 const magpieGif = /\/a.gif\?|\/t.gif\?|\/st.gif\?/;
 const magpieValidationJSON =  /\/a.json\?|\/t.json\?|\/st.json\?/;
 const magpieJsReference = /\/magpiejs\/([^\/]+)/;
+const analyticsJsReference = /([^\/]+)\/bv-analytics\.js/;
 const magpieJsVersion = /magpieJsVersion=([\d.]+)/;
 
 const dict = {
@@ -34,6 +35,9 @@ const resourceArr = [
 const bv_analytics_arr = [
   magpieGif,
   magpieValidationJSON,
+  magpieJsReference,
+  magpieJsVersion,
+  analyticsJsReference
 ]
 
 let foundBVApi = false;
@@ -50,6 +54,19 @@ export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
   (url.match(/\/a.gif|\/a.json/) && !hasFirstParty && !hasThirdParty);
 
 export const checkRequest = url => {
+  for (let i = 0; i < bv_analytics_arr.length; i++) {
+    if (url.match(bv_analytics_arr[i])) {
+      const isFirstParty = hasFirstParty(url);
+      const isThirdParty = hasThirdParty(url);
+      return {
+        analytics_event: url,
+        firstParty: isFirstParty,
+        thirdParty: isThirdParty,
+        isAnonymous: isAnonymous(url, isFirstParty, isThirdParty)
+      }
+    }
+  }
+
   if (url.includes('ugc.bazaarvoice.com/static/') && url.includes('/bvapi.js') && !foundBVApi) {
     foundBVApi = true;
     return {
@@ -76,19 +93,6 @@ export const checkRequest = url => {
       }
 
       return { resource: dict[resourceArr[i]] }
-    }
-  }
-
-  for (let i = 0; i < bv_analytics_arr.length; i++) {
-    if (url.match(bv_analytics_arr[i])) {
-      const isFirstParty = hasFirstParty(url);
-      const isThirdParty = hasThirdParty(url);
-      return {
-        analytics_event: url,
-        firstParty: isFirstParty,
-        thirdParty: isThirdParty,
-        isAnonymous: isAnonymous(url, isFirstParty, isThirdParty)
-      }
     }
   }
 

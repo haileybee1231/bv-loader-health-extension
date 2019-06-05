@@ -147,7 +147,7 @@ class Popup extends React.Component {
           }
           break;
         case 'capture_events':
-          const {
+          let {
             resource,
             analytics_event,
             firstParty,
@@ -189,19 +189,44 @@ class Popup extends React.Component {
               );
             }
           } else if (analytics_event) {
-            this.setState({
-              analytics: {
-                ...this.state.analytics,
-                [analytics_event]: parseAnalyticsEvent(request.data.url)
-              },
-              changed: true,
-              firstParty,
-              thirdParty,
-              anonymous
-            }, this.setState({
-              changed: false
-            }))
-            this.addAnalytic()
+            const parsedEvent = parseAnalyticsEvent(request.data.url);
+            
+            const setAnalyticEvent = event => {
+              let analytics_event_copy = analytics_event;
+
+              const tickUpDupeNumber = potentialDupe => {
+                const eventInState = this.state.analytics[potentialDupe];
+                if (eventInState) {
+                  const dupeNumber = potentialDupe.match(/\(([0-9])\)/) ? potentialDupe.match(/\(([0-9])\)/)[1] : 0;
+                  return tickUpDupeNumber(`${analytics_event_copy}(${+dupeNumber + 1})`);
+                } else {
+                  return potentialDupe;
+                }
+              }
+
+              analytics_event_copy = tickUpDupeNumber(analytics_event_copy);
+
+              this.setState({
+                analytics: {
+                  ...this.state.analytics,
+                  [analytics_event_copy]: event
+                },
+                changed: true,
+                firstParty,
+                thirdParty,
+                anonymous
+              }, this.setState({
+                changed: false
+              }))
+              this.addAnalytic()
+            }
+
+            if (Array.isArray(parsedEvent)) {
+              parsedEvent.forEach(event => setAnalyticEvent(event));
+            } else {
+              setAnalyticEvent(parsedEvent);
+            }
+            
           }
           break;
         default:

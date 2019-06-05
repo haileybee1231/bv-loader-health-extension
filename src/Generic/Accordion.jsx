@@ -44,6 +44,16 @@ class Accordion extends React.Component {
                 const isNumber = typeof value === 'number';
                 if (typeof value === 'string' || isNumber) {
                   return <TableRow name={tuple[0]} value={isNumber ? value.toFixed(4) : value} key={index} />
+                } else if (Array.isArray(value)) {
+                  return <TableRow
+                    name={tuple[0]}
+                    value={
+                      value
+                        .map((metric, j) => `Metric ${j + 1}: ${Object.values(metric).join(', ')}`)
+                        .join(',\r\n')
+                    }
+                    key={index}
+                  />
                 }
               }
               )}
