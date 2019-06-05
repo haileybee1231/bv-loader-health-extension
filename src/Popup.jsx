@@ -197,7 +197,7 @@ class Popup extends React.Component {
               const tickUpDupeNumber = potentialDupe => {
                 const eventInState = this.state.analytics[potentialDupe];
                 if (eventInState) {
-                  const dupeNumber = potentialDupe.match(/\(([0-9])\)/) ? potentialDupe.match(/\(([0-9])\)/)[1] : 0;
+                  const dupeNumber = potentialDupe.match(/\(([0-9]*)\)/) ? potentialDupe.match(/\(([0-9]*)\)/)[1] : 0;
                   return tickUpDupeNumber(`${analytics_event_copy}(${+dupeNumber + 1})`);
                 } else {
                   return potentialDupe;
