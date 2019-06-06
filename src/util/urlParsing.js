@@ -54,15 +54,19 @@ export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
   (url.match(/\/a.gif|\/a.json/) && !hasFirstParty && !hasThirdParty);
 
 export const checkRequest = url => {
-  for (let i = 0; i < bv_analytics_arr.length; i++) {
-    if (url.match(bv_analytics_arr[i])) {
-      const isFirstParty = hasFirstParty(url);
-      const isThirdParty = hasThirdParty(url);
-      return {
-        analytics_event: url,
-        firstParty: isFirstParty,
-        thirdParty: isThirdParty,
-        isAnonymous: isAnonymous(url, isFirstParty, isThirdParty)
+  if (url === 'https://analytics-static.ugc.bazaarvoice.com/prod/static/3/bv-analytics.js') {
+    () => {};
+  } else {
+    for (let i = 0; i < bv_analytics_arr.length; i++) {
+      if (url.match(bv_analytics_arr[i])) {
+        const isFirstParty = hasFirstParty(url);
+        const isThirdParty = hasThirdParty(url);
+        return {
+          analytics_event: url,
+          firstParty: isFirstParty,
+          thirdParty: isThirdParty,
+          isAnonymous: isAnonymous(url, isFirstParty, isThirdParty)
+        }
       }
     }
   }

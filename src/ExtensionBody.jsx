@@ -13,6 +13,7 @@ class ExtensionBody extends React.Component {
       resourceName: '',
       version: '',
       resourceDetails: {},
+      resourceHealth: {},
       flexDetails: null,
       analyticsDetails: null,
       resourcesOpen: false,
@@ -20,7 +21,27 @@ class ExtensionBody extends React.Component {
       perfMarksOpen: false,
       analyticsOpen: false,
       bvJsScriptAttrs: []
-    }
+    };
+
+    this.appMap = {
+      'Inline Ratings': 'inline_ratings',
+      'Questions': 'questions',
+      'Rating Summary': 'rating_summary',
+      'Review Highlights': 'review_highlights',
+      'Reviews': 'reviews',
+      'Seller Ratings': 'seller_ratings',
+      'Spotlights': 'spotlights',
+      'Product Picker': 'product_picker',
+
+      'inline_ratings': 'Inline Ratings',
+      'questions': 'Questions',
+      'rating_summary': 'Rating Summary',
+      'review_highlights': 'Review Highlights',
+      'reviews': 'Reviews',
+      'seller_ratings': 'Seller Ratings',
+      'spotlights': 'Spotlights',
+      'product_picker': 'Product Picker',
+    };
   }
 
   componentWillReceiveProps({ selectedResource }) {
@@ -110,7 +131,14 @@ class ExtensionBody extends React.Component {
   }
 
   parseResponse = text => {
-    const resourceDetails = {}, { resourceName } = this.state;
+    const { resourceName } = this.state;
+    const alias =
+      resourceName === 'analytics.js'
+        ? 'bv_analytics'
+        : resourceName.toLowerCase().replace('.', '').replace(' ', '_');
+    const resourceDetails = {
+      health: this.props.resources[alias].health
+    };
 
     if (resourceName === 'bv.js') {
       resourceDetails.capabilitiesArr = text.split('*/')[0].match(/[A-Za-z]+?_?[A-Za-z]+@[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/g);
@@ -199,18 +227,129 @@ class ExtensionBody extends React.Component {
     }
   }
 
-  render() {
-    const appMap = {
-      'Inline Ratings': 'inline_ratings',
-      'Questions': 'questions',
-      'Rating Summary': 'rating_summary',
-      'Review Highlights': 'review_highlights',
-      'Reviews': 'reviews',
-      'Seller Ratings': 'seller_ratings',
-      'Spotlights': 'spotlights',
-      'Product Picker': 'product_picker'
+  assessHealth = (name, details) => {
+    // We initialize health status at 2, which is green (yellow is 1, red is 0),
+    //and ding appropriately based on relevant conditions
+    const health = {
+      score: 2
     };
-  
+    let numOfIssues = 0;
+
+    const updateHealth = (score, issue) => {
+      health.score = score;
+      health[issue] = true;
+      numOfIssues++;
+    }
+    console.log(this.props.resources)
+    if (name === 'bvjs') {
+      const { bvJsScriptAttrs: scriptAttrs } = this.state;
+      if (!scriptAttrs.length) {
+        updateHealth(0, 'Missing Script Tag');
+      } else {
+        scriptAttrs.forEach(tuple => {
+          if (tuple[0] === 'async' && (!tuple[1] || tuple[1] === 'false')) {
+            updateHealth(1, 'Async Not Enabled on Script Tag');
+          } else if (tuple[0] === 'defer' && (!tuple[1] || tuple[1] === 'false')) {
+            updateHealth(1, 'Defer Not Enabled on Script Tag');
+          } else if (tuple[0] === 'src' && (!tuple[1])) {
+            updateHealth(0, 'src Missing on Script Tag');
+          }
+        });
+      }
+
+      const { BV } = this.props;
+
+      if (!BV) {
+        updateHealth(0, 'BV Namespace Is Missing');
+      } else {
+        const { global } = BV;
+        if (!global) {
+          updateHealth(1, 'BV.global Namespace Is Missing');
+        } else {
+          if (!global.dataEnvironment) {
+            updateHealth(1, 'Data Environment Is Missing from BV Global');
+          }
+          if (!global.serverEnvironment) {
+            updateHealth(1, 'Server Environment Is Missing from BV Global');
+          }
+          if (!global.locale) {
+            updateHealth(1, 'Locale Is Missing from BV Global');
+          }
+          if (!global.client) {
+            updateHealth(1, 'Client Is Missing from BV Global');
+          }
+          if (!global.siteId) {
+            updateHealth(1, 'SiteId Is Missing from BV Global');
+          }
+        }
+      }
+    } else if(name === 'firebird') {
+      // ¯\_(ツ)_/¯
+    } else if (name === 'prr') {
+      const { $BV } = this.props;
+
+      if (!$BV) {
+        updateHealth(0, '$BV Namespace Is Missing');
+      } else {
+        const { Internal } = $BV;
+
+        if (!Internal) {
+          updateHealth(0, '$BV.Internal Namespace Is Missing')
+        }
+      }
+
+      // ¯\_(ツ)_/¯
+    } else if (this.appMap[name]) {
+
+      const container = document.querySelectorAll(`[data-bv-show="${
+        name === 'inline_ratings' ? 'inline_rating' : name
+      }"`)[0];
+
+      const namespace = this.props.BV ? this.props.BV[name] : null;
+
+      // App won't render if container or namespace isn't there
+      if (!container) {
+        updateHealth(0, `data-bv-show=${name} Container Missing`);
+      }
+      if (!namespace) {
+        updateHealth(0, `${name} Missing from Global`);
+      }
+
+      if (container && namespace) {
+        if (!container.dataset[name === 'spotlights' ? 'bvSubjectId' : 'bvProductId']) {
+          if (!container.dataset.bvProductId && container.dataset.bvProductid) {
+            updateHealth(1, 'Potentially Wrong bvProductId Casing')
+          } else {
+            updateHealth(1, `${name === 'spotlights' ? 'bvSubjectId' : 'bvProductId'} Missing`);
+          }
+        }
+        
+        if (!namespace.config[name === 'spotlights' ? 'cloudKey' : 'apiKey']) {
+          if (['reviews', 'questions'].indexOf(name) === -1) {
+            updateHealth(1, `${name === 'spotlights' ? 'API Key' : 'Cloud Key'} Missing from Config`);
+          }
+        }
+        
+        if (!namespace._analytics) {
+          updateHealth(1, `Analytings Missing from ${name} Global`);
+        }
+      }
+    } else if (name === 'flex') {
+
+    }
+
+    if (numOfIssues > 3) {
+      health.score--;
+    }
+
+    if (health.score < 0) {
+      health.score = 0;
+    }
+
+    return health;
+  }
+
+  render() {
     const {
       resources,
       analytics,
@@ -227,13 +366,23 @@ class ExtensionBody extends React.Component {
       $BV
     } = this.props;
 
+    for (const resource in resources) {
+      if (resources[resource]) {
+        resources[resource].health = this.assessHealth(resource, resources[resource]);
+      }
+    }
+
     return (
       this.state.showResource
         ? (
           <ResourcePage
             resourceName={this.state.resourceName}
             resourceDetails={this.state.resourceDetails}
-            appDetails={appMap[this.state.resourceName] ? apps[appMap[this.state.resourceName]] : null}
+            appDetails={
+              this.appMap[this.state.resourceName]
+                ? apps[this.appMap[this.state.resourceName]]
+                : null
+            }
             analyticsDetails={this.state.analyticsDetails}
             flexDetails={this.state.flexDetails}
             selectedResource={selectedResource}

@@ -4,3 +4,5 @@ public/dist/fonts
 public/dist/background.js
 public/dist/getBVScript.js
 public/dist/popup.js
+.DS_Store
+public.crx

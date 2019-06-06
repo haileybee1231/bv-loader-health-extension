@@ -107,7 +107,7 @@ class GlobalsList extends React.Component {
       });
 
       this.props.getFlexDetails({
-        layouts: _render.layouts
+        layouts: _render ? _render.layouts : null
       });
     } else if (namespace && resource === '$BV') {
       const InternalPath = 'Internal';

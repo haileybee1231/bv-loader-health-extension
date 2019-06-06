@@ -43,12 +43,19 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
       {resourcesOpen && (
         <table style={{ width: '80%', margin: 'auto' }}>
           <tbody>
+            <tr>
+              <th>Resource</th>
+              <th>On Page</th>
+              <th style={{ textAlign: 'center' }}>Health</th>
+            </tr>
             {resourceArr.map((resourceTuple, index) =>
               <TableRow
                 name={resourceTuple[0]}
                 value={trueOrFalse(resourceTuple[1])}
                 isResource={true}
                 handleClick={handleClick}
+                isStatus={true}
+                status={resourceTuple[1] ? resourceTuple[1].health : null}
                 key={index}
               />
             )}

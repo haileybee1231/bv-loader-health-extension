@@ -1,4 +1,5 @@
 import React from 'react';
+import StatusLight from './StatusLight.jsx';
 
 const TableRow = props => {
   return (
@@ -30,6 +31,22 @@ const TableRow = props => {
         }:
         </td>
       <td style={{ paddingLeft: '4px', wordBreak: props.doNotBreak ? '' : 'break-word' }}>{props.value}</td>
+      {props.isStatus && (
+        <td style={{ border: '1px transparent solid' }}>
+          <StatusLight
+            handleClick={
+              () => props.handleClick(
+                props.name,
+                props.name
+                  .toLowerCase()
+                  .replace(' ', '_')
+                  .replace('.', '')
+              )
+            }
+            status={props.status}
+          />
+        </td>
+      )}
     </tr>
   )
 }
