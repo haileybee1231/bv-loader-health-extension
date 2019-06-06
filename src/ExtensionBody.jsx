@@ -240,7 +240,7 @@ class ExtensionBody extends React.Component {
       health[issue] = true;
       numOfIssues++;
     }
-    console.log(this.props.resources)
+
     if (name === 'bvjs') {
       const { bvJsScriptAttrs: scriptAttrs } = this.state;
       if (!scriptAttrs.length) {
@@ -263,13 +263,14 @@ class ExtensionBody extends React.Component {
         updateHealth(0, 'BV Namespace Is Missing');
       } else {
         const { global } = BV;
+
         if (!global) {
           updateHealth(1, 'BV.global Namespace Is Missing');
         } else {
-          if (!global.dataEnvironment) {
+          if (!global.dataEnv) {
             updateHealth(1, 'Data Environment Is Missing from BV Global');
           }
-          if (!global.serverEnvironment) {
+          if (!global.serverEnv) {
             updateHealth(1, 'Server Environment Is Missing from BV Global');
           }
           if (!global.locale) {
