@@ -129,8 +129,10 @@ class ExtensionBody extends React.Component {
           this.setState({
             resourceDetails: {
               render: texts[0],
-              components: texts[1]
-            }
+              components: texts[1],
+              health: this.props.resources.flex.health
+            },
+            version: 'retrieved'
           })
         })
   }
@@ -391,7 +393,32 @@ class ExtensionBody extends React.Component {
         }
       }
     } else if (name === 'flex') {
+      const { BV } = this.props;
 
+      if (!BV) {
+        updateHealth(0, 'BV Namespace Is Missing');
+      } else {
+        const { _render } = this.props.BV;
+        
+        if (!_render) {
+          updateHealth(0, 'No _render Namespace on BV Global');
+        } else {
+          const { layouts, perfMark } = _render;
+          if (!layouts || !Object.entries(layouts).length) {
+            updateHealth(1, 'No layouts registered');
+          } else {
+            for (const layout in layouts) {
+              if (!layouts[layout]) {
+                updateHealth(1, `No Analytics Object on Layout "${layout}"`);
+              }
+            }
+          }
+  
+          if (!perfMark) {
+            updateHealth(1, 'No _render PerfMark registered')
+          }
+        }
+      }
     }
 
     if (numOfIssues > 3) {

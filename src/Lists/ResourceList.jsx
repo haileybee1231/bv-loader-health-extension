@@ -12,7 +12,8 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
     questions,
     inline_ratings,
     spotlights,
-    bv_analytics
+    bv_analytics,
+    flex
   } = resources;
 
   const resourceArr = [
@@ -26,7 +27,7 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
     ['Questions', questions],
     ['Review Highlights', review_highlights],
     ['Spotlights', spotlights],
-    ['Flex', window.location.href.includes('bv_segment=layouts_pilot')]
+    ['Flex', window.location.href.includes('bv_segment=layouts_pilot') ? flex : null]
   ]
 
   const trueOrFalse = condition => condition ? <em>true</em> : 'false';
