@@ -28,7 +28,8 @@ class AnalyticsList extends React.Component {
       totalAnalytics,
       toggleSection,
       analyticsOpen,
-      anonymous
+      anonymous,
+      resetAnalytics
     } = this.props;
     
     const analyticsArr = Object.entries(analytics).filter(([, analytic]) => {
@@ -86,6 +87,14 @@ class AnalyticsList extends React.Component {
                 </tr>
               </tbody>
             </table>
+            <h4 style={{ textAlign: 'center' }}>
+              <img
+                style={{ width: '20px', cursor: 'pointer', display: 'inline-block' }}
+                onClick={resetAnalytics}
+                src={`${chrome.extension.getURL('/assets/images/refresh.png')}`}
+              />
+              Analytics
+            </h4>
             <div style={{ width: '100%', margin: 'auto' }}>
               {analyticsArr.length ? (
                 analyticsArr.map((analyticEventTuple, index) => {

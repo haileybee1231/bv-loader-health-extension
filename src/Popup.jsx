@@ -275,6 +275,11 @@ class Popup extends React.Component {
 
   addAnalytic = () => this.setState({ totalAnalytics: this.state.totalAnalytics + 1 })
 
+  resetAnalytics = () => this.setState({
+    analytics: {},
+    totalAnalytics: 0
+  })
+
   handleResourceClick = resource => {
     if (resource === 'analyticsjs') {
       resource = 'bv_analytics';
@@ -331,6 +336,7 @@ class Popup extends React.Component {
                     BVA={BVA}
                     changed={changed}
                     handleResourceClick={this.handleResourceClick}
+                    resetAnalytics={this.resetAnalytics}
                   />
                 ) : (
                   <div style={{ textAlign: 'center' }}>

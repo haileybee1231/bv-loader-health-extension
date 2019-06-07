@@ -445,7 +445,8 @@ class ExtensionBody extends React.Component {
       anonymous,
       BV,
       $BV,
-      BVA
+      BVA,
+      resetAnalytics
     } = this.props;
 
     for (const resource in resources) {
@@ -511,6 +512,7 @@ class ExtensionBody extends React.Component {
               anonymous={anonymous}
               changed={changed}
               BVA={BVA}
+              resetAnalytics={resetAnalytics}
             />
           </div>
         )
