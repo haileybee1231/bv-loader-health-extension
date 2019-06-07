@@ -32,7 +32,7 @@ const TableRow = props => {
         </td>
       <td style={{ paddingLeft: '4px', wordBreak: props.doNotBreak ? '' : 'break-word' }}>{props.value}</td>
       {props.isStatus && (
-        <td style={{ border: '1px transparent solid' }}>
+        <td style={{ border: '1px transparent solid', textAlign: 'center' }}>
           <StatusLight
             handleClick={
               () => props.handleClick(

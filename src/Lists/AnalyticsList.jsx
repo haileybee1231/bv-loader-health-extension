@@ -89,7 +89,7 @@ class AnalyticsList extends React.Component {
             </table>
             <h4 style={{ textAlign: 'center' }}>
               <img
-                style={{ width: '20px', cursor: 'pointer', display: 'inline-block' }}
+                style={{ width: '15px', cursor: 'pointer', display: 'inline-block' }}
                 onClick={resetAnalytics}
                 src={`${chrome.extension.getURL('/assets/images/refresh.png')}`}
               />
