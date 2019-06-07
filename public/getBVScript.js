@@ -1,11 +1,16 @@
 const sendMessage = type => new Promise(resolve => {
-  const is$ = type === '$';
   try {
     document.dispatchEvent(
       new CustomEvent(
-        `${is$ ? '$': ''}bv_obj_retrieved`,
+        `${type}_obj_retrieved`,
         {
-          detail: JSON.stringify(is$ ? get$BVObject() : getBVObject())
+          detail: JSON.stringify(
+            type === '$bv'
+              ? get$BVObject()
+              : type === 'bva'
+                ? getBVAObject()
+                : getBVObject()
+          )
         }
       )
     );
@@ -127,6 +132,16 @@ const get$BVObject = () => {
   };
 }
 
+const getBVAObject = () => {
+  const { BVA } = window;
+
+  return {
+    ...BVA
+  };
+}
+
 setTimeout(() => {
-  sendMessage().then(() => sendMessage('$'));
+  sendMessage('bv')
+    .then(() => sendMessage('$bv'))
+      .then(() => sendMessage('bva'));
 }, 2500);

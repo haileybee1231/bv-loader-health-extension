@@ -4,6 +4,7 @@ import ResourceList from './Lists/ResourceList.jsx';
 import AnalyticsList from './Lists/AnalyticsList.jsx';
 import PerfMarksList from './Lists/PerfMarksList.jsx';
 import GlobalsList from './Lists/GlobalsList.jsx';
+
 class ExtensionBody extends React.Component {
   constructor(props) {
     super(props);
@@ -46,8 +47,12 @@ class ExtensionBody extends React.Component {
 
   componentWillReceiveProps({ selectedResource }) {
     if (selectedResource && !this.state.version) {
-      if (Array.isArray(selectedResource)) {
-        this.getVersions(selectedResource.map(resource => resource.url.replace('.min', '') ));
+      if (selectedResource.render) {
+        this.getVersions(
+          Object.entries(selectedResource)
+            .filter(([resource,]) => resource !== 'health')
+            .map(([resource, details]) => details.url.replace('.min', ''))
+        );
       } else {
         this.getVersion(selectedResource.url);
       }
@@ -300,6 +305,56 @@ class ExtensionBody extends React.Component {
       }
 
       // ¯\_(ツ)_/¯
+    } else if (name === 'bv_analytics') { 
+      const { BVA } = this.props;
+
+      if (!BVA) {
+        updateHealth(0, 'BVA Namespace Is Missing');
+      } else {
+        if (!BVA.loadId) {
+          updateHealth(1, 'No loadId Assigned');
+        }
+
+        const { trackers } = BVA;
+
+
+        for (const tracker in trackers) {
+          const { _settings, _id, _shared } = trackers[tracker];
+
+          if (!_settings) {
+            updateHealth(1, `No Settings Configured for ${tracker} Tracker`);
+          }
+
+          if (tracker !== 'default') {
+            if (!_id) {
+              updateHealth(1, `No ID Object Configured for ${tracker} Tracker`);
+            } else {
+              if (!_id.hostname) {
+                updateHealth(1, `No Hostname Configured for ${tracker} Tracker`);
+              }
+  
+              if (!_settings.anonymous && (!_id.BVID && !_id.BVSID)) {
+                updateHealth(1, `${tracker} Tracker Not Set to Anonymous, But No Cookies Assigned`);
+              } else if (_settings.anonymous && (_id.BVID || _id.BVSID)) {
+                updateHealth(1, `${tracker} Tracker Set to Anonymous, But Cookies Are Assigned`);
+              }
+            }
+
+            if (!_shared) {
+              updateHealth(1, `No Shared Settings Configured for ${tracker} Tracker`);
+            } else {
+              if (!_shared.client) {
+                updateHealth(1, `No Client Set for ${tracker} Tracker`);
+              }
+  
+              if (!_shared.loadId) {
+                updateHealth(1, `No loadId Set for ${tracker} Tracker`);
+              }
+            }
+          }
+        }
+      }
+
     } else if (this.appMap[name]) {
 
       const container = document.querySelectorAll(`[data-bv-show="${
@@ -359,12 +414,11 @@ class ExtensionBody extends React.Component {
       changed,
       totalAnalytics,
       totalPerfMarks,
-      firstParty,
-      thirdParty,
       selectedResource,
       anonymous,
       BV,
-      $BV
+      $BV,
+      BVA
     } = this.props;
 
     for (const resource in resources) {
@@ -384,6 +438,7 @@ class ExtensionBody extends React.Component {
                 ? apps[this.appMap[this.state.resourceName]]
                 : null
             }
+            BVA={BVA}
             analyticsDetails={this.state.analyticsDetails}
             flexDetails={this.state.flexDetails}
             selectedResource={selectedResource}
@@ -407,6 +462,7 @@ class ExtensionBody extends React.Component {
               handleClick={this.handleClick}
               BV={BV}
               $BV={$BV}
+              BVA={BVA}
               getBvJsScriptTag={this.getBvJsScriptTag}
               bvJsScriptAttrs={this.state.bvJsScriptAttrs}
               getAnalyticsDetails={this.getAnalyticsDetails}
@@ -425,10 +481,9 @@ class ExtensionBody extends React.Component {
               totalAnalytics={totalAnalytics}
               analyticsOpen={this.state.analyticsOpen}
               toggleSection={this.toggleSection}
-              firstParty={firstParty}
-              thirdParty={thirdParty}
               anonymous={anonymous}
               changed={changed}
+              BVA={BVA}
             />
           </div>
         )

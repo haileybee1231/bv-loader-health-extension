@@ -32,7 +32,8 @@ class ResourcePage extends React.Component {
       analyticsDetails = {},
       resetVersion,
       selectedResource,
-      bvJsScriptAttrs
+      bvJsScriptAttrs,
+      BVA
     } = this.props;
     const {
       version,
@@ -115,6 +116,7 @@ class ResourcePage extends React.Component {
           {resourceName === 'analytics.js' && (
             <AnalyticsDetails
               analyticsDetails={analyticsDetails}
+              BVA={BVA}
               health={health}
             />
           )}

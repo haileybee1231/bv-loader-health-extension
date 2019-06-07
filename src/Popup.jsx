@@ -27,17 +27,18 @@ class Popup extends React.Component {
         inline_ratings: null,
         spotlights: null,
         product_picker: null,
-        render: null,
-        components: null
+        flex: {
+          render: null,
+          components: null
+        }
       },
       apps: {},
       BV: null,
       $BV: null,
+      BVA: null,
       scriptInjected: false,
       analytics: {},
       perfMarks: null,
-      firstParty: false,
-      thirdParty: false,
       anonymous: false,
       selectedResource: null,
       changed: true
@@ -134,6 +135,13 @@ class Popup extends React.Component {
       }
     );
 
+    this.bvaObjListener = document.addEventListener(
+      'bva_obj_retrieved',
+      bvaObj => {
+        this.parseGlobalObject(bvaObj, 'BVA')
+      }
+    )
+
     setTimeout(() => {
       this.getNewPerfMarks();
     }, 5000);
@@ -150,8 +158,6 @@ class Popup extends React.Component {
           let {
             resource,
             analytics_event,
-            firstParty,
-            thirdParty,
             anonymous
           } = checkRequest(request.data.url);
 
@@ -172,6 +178,24 @@ class Popup extends React.Component {
                   changed: false
                 }))
               })
+            } else if (resource === 'render' || resource === 'components') {
+              this.setState({
+                resources: {
+                  ...this.state.resources,
+                  flex: {
+                    ...this.state.resources.flex,
+                    [resource]: request.data
+                  }
+                },
+                changed: true,
+              }, () =>
+                setTimeout(
+                  () => this.setState({
+                    changed: false
+                  }),
+                  500
+                )
+              );
             } else {
               this.setState({
                 resources: {
@@ -212,8 +236,6 @@ class Popup extends React.Component {
                   [analytics_event_copy]: event
                 },
                 changed: true,
-                firstParty,
-                thirdParty,
                 anonymous
               }, this.setState({
                 changed: false
@@ -256,11 +278,6 @@ class Popup extends React.Component {
   handleResourceClick = resource => {
     if (resource === 'analyticsjs') {
       resource = 'bv_analytics';
-    } else if (resource === 'flex') {
-      this.setState({
-        selectedResource: [this.state.resources.render, this.state.resources.components]
-      });
-      return;
     }
 
     this.setState({
@@ -277,13 +294,12 @@ class Popup extends React.Component {
         perfMarks,
         totalAnalytics,
         totalPerfMarks,
-        firstParty,
-        thirdParty,
         anonymous,
         selectedResource,
         changed,
         BV,
-        $BV
+        $BV,
+        BVA
       } = this.state;
 
       return (
@@ -308,12 +324,11 @@ class Popup extends React.Component {
                     perfMarks={perfMarks}
                     totalAnalytics={totalAnalytics}
                     totalPerfMarks={totalPerfMarks}
-                    firstParty={firstParty}
-                    thirdParty={thirdParty}
                     anonymous={anonymous}
                     selectedResource={selectedResource}
                     BV={BV}
                     $BV={$BV}
+                    BVA={BVA}
                     changed={changed}
                     handleResourceClick={this.handleResourceClick}
                   />

@@ -1,6 +1,7 @@
 import React from 'react';
 import Accordion from '../Generic/Accordion.jsx';
 import TableRow from '../Generic/TableRow.jsx';
+import _get from 'lodash/get'
 
 const AnalyticsList = props => {
   const {
@@ -8,12 +9,12 @@ const AnalyticsList = props => {
     totalAnalytics,
     toggleSection,
     analyticsOpen,
-    firstParty,
-    thirdParty,
-    anonymous
+    anonymous,
+    BVA
   } = props;
-  const trueOrFalse = condition => condition ? <em>true</em> : 'false';
   const analyticsArr = Object.entries(analytics);
+
+  const getCookie = cookie => _get(BVA, `trackers[bv-loader]._id.${cookie}`)
 
   return (
     <React.Fragment>
@@ -28,9 +29,9 @@ const AnalyticsList = props => {
         <React.Fragment>
           <table style={{ width: '80%', margin: 'auto' }}>
             <tbody>
-              <TableRow name={'First Party Cookie'} value={trueOrFalse(firstParty)} />
-              <TableRow name={'Third Party Cookie'} value={trueOrFalse(thirdParty)} />
-              <TableRow name={'Anonymous'} value={trueOrFalse(anonymous)} />
+              <TableRow name={'First Party Cookie'} value={String(getCookie('BVID'))} />
+              <TableRow name={'Third Party Cookie'} value={String(getCookie('BVSID'))} />
+              <TableRow name={'Anonymous'} value={!!anonymous ? 'true' : <em>false</em>} />
             </tbody>
           </table>
           <div style={{ width: '100%', margin: 'auto' }}>

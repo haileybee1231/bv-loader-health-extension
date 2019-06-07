@@ -9,6 +9,7 @@ class GlobalsList extends React.Component {
     this.state = {
       BV: null,
       $BV: null,
+      BVA: null,
       containers: []
     }
   }
@@ -17,9 +18,11 @@ class GlobalsList extends React.Component {
     this.pollForContainers(500);
   }
 
-  componentWillReceiveProps({ $BV }) {
+  componentWillReceiveProps({ $BV, BVA }) {
     if (!this.state.$BV && $BV) {
       this.setGlobalsState('$BV');
+    } else if (!this.state.BVA && BVA) {
+      this.setGlobalsState('BVA');
     }
   }
 
@@ -136,6 +139,15 @@ class GlobalsList extends React.Component {
           'Is EU': String(!!isEU)
         }
       });
+    } else if (namespace && resource === 'BVA') {
+      const { trackers, loadId } = namespace;
+
+      this.setState({
+        BVA: {
+          loadId,
+          trackers: Object.keys(trackers).join(', ')
+        }
+      })
     }
   }
 
@@ -149,7 +161,8 @@ class GlobalsList extends React.Component {
     const {
       containers,
       BV,
-      $BV
+      $BV,
+      BVA
     } = this.state;
 
     return (
@@ -244,6 +257,27 @@ class GlobalsList extends React.Component {
                 <table style={{ width: '80%', margin: 'auto' }}>
                   <tbody>
                   {Object.entries($BV).map((tuple, index) =>
+                    tuple[1] && <TableRow
+                      name={tuple[0]}
+                      value={String(tuple[1])}
+                      key={index}
+                    />
+                  )}
+                  </tbody>
+                </table>
+              </React.Fragment>
+            ) : (
+              <img
+                src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}
+                style={{ height: '40px' }}
+              />
+            )}
+            <h4>Global BVA Namespace</h4>
+            {BVA ? (
+              <React.Fragment>
+                <table style={{ width: '80%', margin: 'auto' }}>
+                  <tbody>
+                  {Object.entries(BVA).map((tuple, index) =>
                     tuple[1] && <TableRow
                       name={tuple[0]}
                       value={String(tuple[1])}
