@@ -4,6 +4,7 @@ import ResourceList from './Lists/ResourceList.jsx';
 import AnalyticsList from './Lists/AnalyticsList.jsx';
 import PerfMarksList from './Lists/PerfMarksList.jsx';
 import GlobalsList from './Lists/GlobalsList.jsx';
+import TestPageButton from './Generic/TestPageButton.jsx';
 
 class ExtensionBody extends React.Component {
   constructor(props) {
@@ -139,6 +140,11 @@ class ExtensionBody extends React.Component {
 
   parseResponse = text => {
     const { resourceName } = this.state;
+
+    if (!resourceName) {
+      return;
+    }
+
     const alias =
       resourceName === 'analytics.js'
         ? 'bv_analytics'
@@ -513,6 +519,9 @@ class ExtensionBody extends React.Component {
               changed={changed}
               BVA={BVA}
               resetAnalytics={resetAnalytics}
+            />
+            <TestPageButton
+              BV={BV}
             />
           </div>
         )

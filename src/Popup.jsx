@@ -310,14 +310,14 @@ class Popup extends React.Component {
       return (
         <ShadowDOM
           include={[
-            chrome.extension.getURL("/dist/css/bvbootstrap/css/clean-slate.css"),
+            chrome.extension.getURL("/dist/css/bvbootstrap/css/reset.css"),
             chrome.extension.getURL("/dist/css/bvbootstrap/css/bootstrap.min.css"),
             chrome.extension.getURL("/dist/css/main.css"),
             chrome.extension.getURL("/dist/css/bvbootstrap/css/bvglyphs.css"),
             chrome.extension.getURL("/dist/css/bvbootstrap/css/font-awesome.css"),
           ]}
         >
-          <div className="bv-cleanslate">
+          <div>
             {this.state.open && (
               <div id="bv_sidebar_container">
                 <ExtensionHeader />

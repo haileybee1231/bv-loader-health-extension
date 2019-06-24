@@ -17,7 +17,9 @@ const sendMessage = type => new Promise(resolve => {
     resolve();
   }
   catch (e) {
-    console.error(e);
+    // I don't know what's going on here, but there's some weird Heisenbug where if you take
+    // out the "type" from this console error then it throws a circular JSON error...
+    console.error(`Problem parsing ${type}: ${e}`);
   }
 });
 
@@ -101,7 +103,7 @@ const get$BVObject = () => {
 
   const { Internal } = $BV;
 
-  if (Internal) {
+  if (Internal && typeof Internal !== 'function') {
     _baseUrl = Internal._baseUrl;
     isPRR = Internal.isPRR;
 
