@@ -95,11 +95,11 @@ const getBVObject = () => {
   // TODO: This was causing circular reference issues for certain pages under certain conditions.
   // My theory is that there was a race condition in the analytics queue, where references are
   // ultimately resolved but at the time of harvesting it's possible to catch a circular reference.
-  // We can use some of this analytics info, though, and the extension is expecting it a few places,
-  // so if we can find a better way to handle these potentially circular references, we should use it.
+  // I believe by only targeting the queue, we're not losing any necessary info, but we should still
+  // figure out a better way to handle this.
   const removeAnalytics = obj => {
     for (const prop in obj) {
-      if (prop === 'analytics' || prop === '_analytics') {
+      if (prop === 'q') {
         delete obj[prop];
       } else if (typeof obj[prop] === 'object') {
         removeAnalytics(obj[prop]);

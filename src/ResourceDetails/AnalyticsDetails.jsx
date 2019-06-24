@@ -68,7 +68,7 @@ class AnalyticsDetails extends React.Component {
       <h3>Fingerprinting Enabled</h3>
       {String(fingerprintingEnabled)}
       <h3>Analytics Vendors</h3>
-      {Object.keys(analyticsVendors).join(', ')}
+      {analyticsVendors ? Object.keys(analyticsVendors).join(', ') : 'Analytics Vendors Not Detected'}
       <h3>Sci Trackers Enabled</h3>
       {String(sci)}
       <h3>Tracking Data Region</h3>
