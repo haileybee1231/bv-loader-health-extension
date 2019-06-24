@@ -1,5 +1,6 @@
 import React from 'react';
 import TableRow from '../Generic/TableRow.jsx';
+import _get from 'lodash/get';
 
 class AppDetails extends React.Component {
   constructor(props) {
@@ -13,7 +14,7 @@ class AppDetails extends React.Component {
   componentDidMount() {
     // This info is not currently being used thanks to a strange circular JSON issue described further
     // in scripts/getBVScript.js, I'm leaving it here in case we can get that stuff figured out.
-    if (this.props.appDetails._analytics.commonData) {
+    if (_get(this.props, 'appDetails._analytics.commonData')) {
       const { name } = this.props.appDetails._analytics;
 
       const containerNodeList = document.querySelectorAll(`[data-bv-show="${name === 'inline_ratings' ? 'inline_rating' : name}"]`);
@@ -58,11 +59,11 @@ class AppDetails extends React.Component {
     const {
       appDetails: {
         config,
-        _analytics: {
-          commonData
-        }
+        _analytics
       }
     } = this.props;
+
+    const commonData = _analytics ? _analytics.commonData : {};
 
     return (
       <React.Fragment>
