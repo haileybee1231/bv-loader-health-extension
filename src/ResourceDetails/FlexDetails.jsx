@@ -43,7 +43,13 @@ const FlexDetails = ({
                     name={tuple[0]}
                     value={
                       tuple[0] === '_analytics'
-                        ? `bvProduct: ${tuple[1].commonData.bvProduct}, layoutId: ${tuple[1].commonData.layoutId}, locale: ${tuple[1].commonData.locale}`
+                        ? `bvProduct: ${
+                          tuple[1].commonData.bvProduct
+                        }, layoutId: ${
+                          tuple[1].commonData.layoutId
+                        }, locale: ${
+                          tuple[1].commonData.locale
+                        }`
                         : tuple[1]} key={index}
                   />
                 )}

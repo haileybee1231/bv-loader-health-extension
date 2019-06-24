@@ -13,7 +13,6 @@ class AnalyticsList extends React.Component {
     }
   }
 
-  
   getCookie = cookie => _get(this.props.BVA, `trackers[bv-loader]._id.${cookie}`);
 
   setFilter = filter => {

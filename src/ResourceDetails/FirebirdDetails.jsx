@@ -52,6 +52,7 @@ const FirebirdDetails = props => {
         </React.Fragment>
       )}
       {/* <h3>Script Tag</h3>
+      TODO: Figure this out!
       <table>
         <tbody>
           {scriptAttrs.map((tuple, index) =>

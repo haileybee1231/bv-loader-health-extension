@@ -1,4 +1,5 @@
 const sendMessage = type => new Promise(resolve => {
+  // TODO: Refactor this to be more generalized in case we want to add more namespaces.
   try {
     document.dispatchEvent(
       new CustomEvent(
@@ -17,8 +18,6 @@ const sendMessage = type => new Promise(resolve => {
     resolve();
   }
   catch (e) {
-    // I don't know what's going on here, but there's some weird Heisenbug where if you take
-    // out the "type" from this console error then it throws a circular JSON error...
     console.error(`Problem parsing ${type}: ${e}`);
   }
 });
@@ -66,13 +65,13 @@ const getBVObject = () => {
           ...appNamespace.config,
         },
         _analytics: {
-          ...appNamespace._analytics
+          ...appNamespace._analytics,
         }
       }
     }
-  })
+  });
 
-  return {
+  const copy = {
     global: {
       dataEnv,
       serverEnv,
@@ -84,12 +83,33 @@ const getBVObject = () => {
     options: {
       ...options
     },
-    ...{
-      ...appMap
+    ...appMap,
+    pixel: {
+      ...BV.pixel,
     },
-    pixel: BV.pixel,
-    _render: BV._render
+    _render: {
+      ...BV._render
+    }
   }
+
+  // TODO: This was causing circular reference issues for certain pages under certain conditions.
+  // My theory is that there was a race condition in the analytics queue, where references are
+  // ultimately resolved but at the time of harvesting it's possible to catch a circular reference.
+  // We can use some of this analytics info, though, and the extension is expecting it a few places,
+  // so if we can find a better way to handle these potentially circular references, we should use it.
+  const removeAnalytics = obj => {
+    for (const prop in obj) {
+      if (prop === 'analytics' || prop === '_analytics') {
+        delete obj[prop];
+      } else if (typeof obj[prop] === 'object') {
+        removeAnalytics(obj[prop]);
+      }
+    }
+  }
+
+  removeAnalytics(copy)
+
+  return copy;
 }
 
 const get$BVObject = () => {
@@ -103,7 +123,7 @@ const get$BVObject = () => {
 
   const { Internal } = $BV;
 
-  if (Internal && typeof Internal !== 'function') {
+  if (Internal) {
     _baseUrl = Internal._baseUrl;
     isPRR = Internal.isPRR;
 
@@ -114,7 +134,7 @@ const get$BVObject = () => {
       autoTagEnabled = _magpieSettings.autoTagEnabled;
       brandDomain = _magpieSettings.brandDomain;
       isEU = _magpieSettings.isEU;
-      prrENV = _magpieSettings.prrENV;
+      prrEnv = _magpieSettings.prrENV;
     }
   }
 
@@ -131,7 +151,7 @@ const get$BVObject = () => {
       isEU,
       prrEnv
     }
-  };
+  };;
 }
 
 const getBVAObject = () => {
@@ -143,6 +163,8 @@ const getBVAObject = () => {
 }
 
 setTimeout(() => {
+  // The $BV and BVA namespaces seem to take a little longer to be established, so
+  // use promises just to be safe.
   sendMessage('bv')
     .then(() => sendMessage('$bv'))
       .then(() => sendMessage('bva'));

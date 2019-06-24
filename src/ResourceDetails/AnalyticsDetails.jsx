@@ -17,6 +17,7 @@ class AnalyticsDetails extends React.Component {
   }
 
   renderConfigObj = configObj => {
+    // Analytics events can be nested objects, so this provides a recursive way to render them
     return Object.entries(configObj).map((configTuple, index) => {
       if (typeof configTuple[1] !== 'object' || configTuple[1] === null) {
         return (

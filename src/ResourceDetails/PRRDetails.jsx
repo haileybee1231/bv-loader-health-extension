@@ -1,5 +1,4 @@
 import React from 'react';
-import TableRow from '../Generic/TableRow.jsx';
 
 const PRRDetails = ({
   clientName,

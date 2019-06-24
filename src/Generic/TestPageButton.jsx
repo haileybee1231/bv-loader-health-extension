@@ -2,6 +2,7 @@ import React from 'react';
 import _get from 'lodash/get';
 
 const serializeHtml = () => {
+  // Gather a list of all bv-show containers and serialize them for the test page URL
   const htmlString =
     [
       ...document.querySelectorAll('[data-bv-show]')
@@ -9,6 +10,7 @@ const serializeHtml = () => {
       const clone = container.cloneNode();
       clone.innerHTML = "";
 
+      // Remove data-bv-ready, as that's not necessary for the test page
       arr.push(clone.outerHTML.replace(/\s*data-bv-ready=".*"\s*/, ''));
 
       return arr;
@@ -25,6 +27,8 @@ const createLink = BV => {
 
     const bv_segment = window.location.href.match(/bv_segment=([a-z]*_[a-z]*)/);
 
+    // I made a few assumptions here about how these properties work, wasn't sure about
+    // all of them.
     const url =
       `https://apps${
         serverEnvironment === 'qa' ? '-qa': ''
@@ -41,7 +45,9 @@ const createLink = BV => {
       }&debug=true&mobile=false&internalEnvironments=${
         dataEnvironment === 'qa' ? 'true' : 'false'
       }&useOrigin=false${
-        bv_segment ? `&bv_segment=${bv_segment[1]}` : '' 
+        bv_segment ? `&bv_segment=${
+          bv_segment[1]
+        }` : '' 
       }&internalParams=true&feature-html=${
         serializeHtml()
       }&legacyDisplayCode=&legacyHostname=&metaUsertoken=`;
@@ -54,6 +60,9 @@ const TestPageButton = ({ BV }) => (
   <button
     onClick={() => createLink(BV)}
     disabled={!BV}
+    style={{
+      cursor: !!BV ? 'pointer' : 'auto'
+    }}
   >
     Open Test Page
   </button>

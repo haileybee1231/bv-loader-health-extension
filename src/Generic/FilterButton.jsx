@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Used to filter analytics events.
 const FilterButton = ({
   text,
   selected,

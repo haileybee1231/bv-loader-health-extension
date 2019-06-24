@@ -9,9 +9,9 @@ module.exports = {
   watch: true,
   context: __dirname + '/src',
   entry: {
-    getBVScript: __dirname + '/public/getBVScript',
-    popup: __dirname + '/src/popup',
-    background: __dirname + '/public/background',
+    getBVScript: __dirname + '/src/scripts/getBVScript',
+    popup: __dirname + '/src/scripts/popup',
+    background: __dirname + '/src/scripts/background',
   },
   output: {
     path: ROOT_PATH + '/public/dist',

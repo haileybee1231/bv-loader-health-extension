@@ -11,6 +11,8 @@ class AppDetails extends React.Component {
   }
 
   componentDidMount() {
+    // This info is not currently being used thanks to a strange circular JSON issue described further
+    // in scripts/getBVScript.js, I'm leaving it here in case we can get that stuff figured out.
     if (this.props.appDetails._analytics.commonData) {
       const { name } = this.props.appDetails._analytics;
 
@@ -23,6 +25,8 @@ class AppDetails extends React.Component {
   }
 
   renderConfigObj = configObj => {
+    // Config objects can be nested for these apps, so this is a recursive solution which can handle
+    // objects and arrays.
     return Object.entries(configObj).map((configTuple, index) => {
       if (typeof configTuple[1] !== 'object') {
         return (

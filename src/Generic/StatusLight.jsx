@@ -6,6 +6,8 @@ const StatusLight = ({ status, handleClick, onResourcePage }) => (
   <React.Fragment>
     <div
       onClick={status ? handleClick : null}
+      // These lights can appear either on the basic extension page, or alongside the title
+      // on the resource detail page, so there is some conditional styling to account for this.
       style={{
         backgroundColor: status ? colorArray[status.score] : 'lightgray',
         border: '1px solid black',
@@ -20,6 +22,8 @@ const StatusLight = ({ status, handleClick, onResourcePage }) => (
     >
       {!onResourcePage && (
         <span>
+          {/* Not a huge fan of this, but couldn't figure out how else to get these spaced correctly.
+          If you're a CSS wizard, please help! */}
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           {
             status

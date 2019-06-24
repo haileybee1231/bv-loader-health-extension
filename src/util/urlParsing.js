@@ -55,12 +55,17 @@ export const isAnonymous = (url, hasFirstParty, hasThirdParty) =>
 
 export const checkRequest = url => {
   if (url === 'https://analytics-static.ugc.bazaarvoice.com/prod/static/3/bv-analytics.js') {
+    // The URL for analytics.js shows up as an analytics event, so just have a no-op and let it be
+    // handled lower in this function
     () => {};
   } else {
+    // Otherwise, check to see if the URL passes any of the criteria for being an analytics event
+    // by comparing it against the possible regexes in the bv_analytics_arr
     for (let i = 0; i < bv_analytics_arr.length; i++) {
       if (url.match(bv_analytics_arr[i])) {
         const isFirstParty = hasFirstParty(url);
         const isThirdParty = hasThirdParty(url);
+        // Then, return analytic info in digestible format
         return {
           analytics_event: url,
           firstParty: isFirstParty,
@@ -72,13 +77,18 @@ export const checkRequest = url => {
   }
 
   if (url.includes('ugc.bazaarvoice.com/static/') && url.includes('/bvapi.js') && !foundBVApi) {
+    // From what I can tell, this resource is ambiguous and can be either PRR or Firebird, so we 
+    // return both those possibilities and make the decision based on other info we get from the global
+    // namespaces
     foundBVApi = true;
     return {
       resource: ['firebird', 'prr']
     }
   }
 
-  if (url.includes('bazaarvoice') && !url.includes('gif')) {
+  // Other domain's use the words render and components a fair amount, so make sure it's ours before
+  // loggin git
+  if (url.includes('bazaarvoice')) {
     if (url.includes('render')) {
       return {
         resource: 'render'
@@ -92,6 +102,9 @@ export const checkRequest = url => {
 
   for (let i = 0; i < resourceArr.length; i++) {
     if (url.includes(resourceArr[i])) {
+      // Not really sure about these resources, but it seems we sometimes have a separate call for `bv.js`
+      // that also has firebird in the name, and that's not the one we want. Maybe it's to get the submission
+      // form?
       if ((resourceArr[i] === 'bv.js' && url.includes('firebird')) || url.includes('.gif')) {
         return { resource: undefined }
       }

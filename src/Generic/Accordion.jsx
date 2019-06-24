@@ -23,6 +23,9 @@ class Accordion extends React.Component {
       entryType,
       contentType
     } = this.props;
+
+    // This component is currently pretty tightly coupled to analytic events, but it would be better
+    // to be able to use them with any event or type of data we want to display. TODO: Revisit.
     return (
       <React.Fragment>
         <button

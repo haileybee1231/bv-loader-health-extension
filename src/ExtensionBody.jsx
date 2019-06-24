@@ -25,6 +25,7 @@ class ExtensionBody extends React.Component {
       bvJsScriptAttrs: []
     };
 
+    // We use this hash map to cross reference the ways apps might be handed to us.
     this.appMap = {
       'Inline Ratings': 'inline_ratings',
       'Questions': 'questions',
@@ -47,14 +48,21 @@ class ExtensionBody extends React.Component {
   }
 
   componentWillReceiveProps({ selectedResource }) {
+    // When a user clicks on a resource, if we haven't fetched its additional info yet,
+    // version will not be set.
     if (selectedResource && !this.state.version) {
+      // If we're looking for render, we're ALSO looking for components
       if (selectedResource.render) {
+        // so we have a special function to go look for both
         this.getVersions(
           Object.entries(selectedResource)
+            // take out all the request info, other than the health property,
             .filter(([resource,]) => resource !== 'health')
+            // then take out ".min" so we can find it.
             .map(([resource, details]) => details.url.replace('.min', ''))
         );
       } else {
+        // Otherwise, just fetch the resource
         this.getVersion(selectedResource.url);
       }
     }
@@ -71,6 +79,8 @@ class ExtensionBody extends React.Component {
     }
   }
 
+  // Set the version back to an empty string when you back out of a resource view so
+  // that the next resource click will trigger another fetch.
   resetVersion = () => this.setState({ version: '' })
 
   toggleSection = section => {
@@ -108,6 +118,11 @@ class ExtensionBody extends React.Component {
     });
   }
 
+  // For both this function and the special one for render and components below it,
+  // we actually request the resource ourselves so we can direclty parse the response.
+  // The chrome extension webRequest API does not allow you to read the body of a response,
+  // so we can't get them as they come in, and we don't know that we'll need them unless
+  // a user clicks on the name, so we don't do it until then.
   getVersion = url => {
     fetch(url)
       .then(response => response.text()
@@ -133,11 +148,16 @@ class ExtensionBody extends React.Component {
               components: texts[1],
               health: this.props.resources.flex.health
             },
+            // Right now we don't really keep much in render and components that's
+            // useful to people, so... I'm just setting the version to "retrieved"
+            // and setting the resource as the direct text response.
             version: 'retrieved'
           })
         })
   }
 
+  // This function is invoked for any resource that's fetched and parsed into its unique
+  // and useful contents.
   parseResponse = text => {
     const { resourceName } = this.state;
 
@@ -145,6 +165,8 @@ class ExtensionBody extends React.Component {
       return;
     }
 
+    // We store some of the resources with different names then what comes back directly,
+    // so this removes periods and replaces spaces with underscores.
     const alias =
       resourceName === 'analytics.js'
         ? 'bv_analytics'
@@ -154,6 +176,7 @@ class ExtensionBody extends React.Component {
     };
 
     if (resourceName === 'bv.js') {
+      // A bunch of regex to capture things from the top of the bv.js file.
       resourceDetails.capabilitiesArr = text.split('*/')[0].match(/[A-Za-z]+?_?[A-Za-z]+@[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/g);
       resourceDetails.client = /client:"([A-Za-z0-9-_]*)"/.exec(text)[1];
       resourceDetails.site = /site:"([A-Za-z0-9-_]+)"/.exec(text)[1];
@@ -162,6 +185,10 @@ class ExtensionBody extends React.Component {
       resourceDetails.buildTime = text.match(/\b(?:(?:Mon)|(?:Tues?)|(?:Wed(?:nes)?)|(?:Thur?s?)|(?:Fri)|(?:Sat(?:ur)?)|(?:Sun))(?:day)?\b[:\-,]?\s*[a-zA-Z]{3,9}\s+\d{1,2}\s*,?\s*\d{4} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} GMT\+[0-9]{4}/g);
       resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/)
     } else if (resourceName === 'PRR') {
+      // For PRR, we attempt to find the "configure" sub namespace in the $BV section of
+      // bvapi.js, which has some useful stuf in it. This could probably also be gleaned
+      // directly from the $BV namespace, which we already have at this point, but I wasn't
+      // sure if there was more info in this file that could be used.
       let configuration;
 
       try {
@@ -183,6 +210,10 @@ class ExtensionBody extends React.Component {
       let configuration;
       
       try {
+        // I found this wonky thing to allow you to take a stringified JS object which is not in the right
+        // format to be JSON.parse'd and coerce it into an actual lobject, not super sure how it works...
+        // TODO: Not sure this is 100% safe and we should probably do some sanitization here.
+        // Solution cribbed from https://stackoverflow.com/questions/1086404/string-to-object-in-js.
         configuration = new Function('return' + /e\.exports=({rawFirebirdConfig:.*\(UTC\)"})/.exec(text)[1])();
         const { rawFirebirdConfig } = configuration;
 
@@ -217,6 +248,10 @@ class ExtensionBody extends React.Component {
       }
     } else if (resourceName === 'analytics.js') {
       resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/)
+      
+      // TODO: There might be more we need to get out of this file, which is why I have it
+      // being treated separately. Not sure what we need, though, that we couldn't get from the
+      // namespaces.
     } else {
       resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/);
     }
@@ -254,6 +289,8 @@ class ExtensionBody extends React.Component {
       numOfIssues++;
     }
 
+    // A lot of this is sort of arbitrary, for all these resources.
+    // TODO: Go through these and find actually useful for criteria for determining health.
     if (name === 'bvjs') {
       const { bvJsScriptAttrs: scriptAttrs } = this.state;
       if (!scriptAttrs.length) {
@@ -299,6 +336,7 @@ class ExtensionBody extends React.Component {
       }
     } else if(name === 'firebird') {
       // ¯\_(ツ)_/¯
+      // Literally no idea what to assess here for health.
     } else if (name === 'prr') {
       const { $BV } = this.props;
 
@@ -313,7 +351,9 @@ class ExtensionBody extends React.Component {
       }
 
       // ¯\_(ツ)_/¯
+      // Ditto.
     } else if (name === 'bv_analytics') { 
+      // Is any of this important? I have no idea!
       const { BVA } = this.props;
 
       if (!BVA) {
@@ -364,7 +404,8 @@ class ExtensionBody extends React.Component {
       }
 
     } else if (this.appMap[name]) {
-
+      // This condition is for individual apps, which will be cross-referenced with the
+      // app map in the constructor.
       const container = document.querySelectorAll(`[data-bv-show="${
         name === 'inline_ratings' ? 'inline_rating' : name
       }"`)[0];
@@ -455,6 +496,7 @@ class ExtensionBody extends React.Component {
       resetAnalytics
     } = this.props;
 
+    // TODO: Maybe this doesn't need to happen on every render? Find a way to optimize.
     for (const resource in resources) {
       if (resources[resource]) {
         resources[resource].health = this.assessHealth(resource, resources[resource]);
@@ -462,6 +504,8 @@ class ExtensionBody extends React.Component {
     }
 
     return (
+      // When a user clicks on a resource name, change the extension body's content to just
+      // show details on that resource
       this.state.showResource
         ? (
           <ResourcePage

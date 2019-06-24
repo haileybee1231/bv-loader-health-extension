@@ -19,6 +19,8 @@ class GlobalsList extends React.Component {
   }
 
   componentWillReceiveProps({ $BV, BVA }) {
+    // This is all a bit jury-rigged and BV is kind of considered higher priority than $BV and BVA.
+    // TODO: Refactor to handle these a bit more intelligently.
     if (!this.state.$BV && $BV) {
       this.setGlobalsState('$BV');
     } else if (!this.state.BVA && BVA) {
@@ -35,6 +37,8 @@ class GlobalsList extends React.Component {
     }
   }
 
+  // A lot of these globals were decided on somewhat haphazardly. 
+  // TODO: Be more discerning with which globals are harvested.
   setGlobalsState = (resource, containerNodeList = this.state.containers) => {
     const containers = [...containerNodeList]
         .map(container => container.dataset);
@@ -165,6 +169,9 @@ class GlobalsList extends React.Component {
       BVA
     } = this.state;
 
+    // The global entries below all have a lot in common and can probable be programmaticaly generated
+    // from one constructor.
+    // TODO: DRY!
     return (
       <React.Fragment>
         <h3

@@ -9,17 +9,10 @@ import StatusLight from '../Generic/StatusLight.jsx';
 
 class ResourcePage extends React.Component {
   componentDidMount() {
+    // If the resource is bv.js, get it's script tag
     if (this.props.resourceName === 'bv.js' && !this.props.bvJsScriptAttrs.length) {
       this.props.getBvJsScriptTag();
     }
-  }
-
-  transformResourceObj = resourceObj => {
-    let propArr = [];
-
-    // for (let prop in resourceObj) {
-    //   if ()
-    // }
   }
 
   render() {
@@ -66,11 +59,15 @@ class ResourcePage extends React.Component {
           <StatusLight status={health} onResourcePage />
           <h2 style={{ marginRight: '4px' }}>{resourceName}</h2>
           {resourceName !== 'Flex' && (
+            // Right now there's no resource version for flex because... that doesn't
+            // really mean anything.
             <em>{`${version ? 'v' : 'Resource not found.'}${version}`}</em>
           )}
         </div>
         <div>
           {health && health.score < 2 && (
+            // If a resource doesn't have perfect health, loop over the reasons why
+            // and display them in a list
             <React.Fragment>
               <h3>Health Report</h3>
               <h4>Number of Issues Found</h4>
