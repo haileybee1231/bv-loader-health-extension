@@ -503,6 +503,8 @@ class ExtensionBody extends React.Component {
       }
     }
 
+    const bvContentPresent = !!Object.values(resources).slice(0, -1).filter(resource => resource).length;
+
     return (
       // When a user clicks on a resource name, change the extension body's content to just
       // show details on that resource
@@ -527,33 +529,43 @@ class ExtensionBody extends React.Component {
           />
         ) : (
           <div style={{ paddingLeft: '20px', paddingBottom: '20px' }}>
-            <ResourceList
-              resources={resources}
-              changed={changed}
-              resourcesOpen={this.state.resourcesOpen}
-              toggleSection={this.toggleSection}
-              handleClick={this.handleClick}
-            />
-            <GlobalsList
-              globalsOpen={this.state.globalsOpen}
-              toggleSection={this.toggleSection}
-              handleClick={this.handleClick}
-              BV={BV}
-              $BV={$BV}
-              BVA={BVA}
-              getBvJsScriptTag={this.getBvJsScriptTag}
-              bvJsScriptAttrs={this.state.bvJsScriptAttrs}
-              getAnalyticsDetails={this.getAnalyticsDetails}
-              getFlexDetails={this.getFlexDetails}
-              changed={changed}
-            />
-            <PerfMarksList
-              perfMarks={perfMarks}
-              totalPerfMarks={totalPerfMarks}
-              perfMarksOpen={this.state.perfMarksOpen}
-              toggleSection={this.toggleSection}
-              changed={changed}
-            />
+            {bvContentPresent ? (
+              <React.Fragment>
+                <ResourceList
+                  resources={resources}
+                  changed={changed}
+                  resourcesOpen={this.state.resourcesOpen}
+                  toggleSection={this.toggleSection}
+                  handleClick={this.handleClick}
+                />
+                <GlobalsList
+                  globalsOpen={this.state.globalsOpen}
+                  toggleSection={this.toggleSection}
+                  handleClick={this.handleClick}
+                  BV={BV}
+                  $BV={$BV}
+                  BVA={BVA}
+                  getBvJsScriptTag={this.getBvJsScriptTag}
+                  bvJsScriptAttrs={this.state.bvJsScriptAttrs}
+                  getAnalyticsDetails={this.getAnalyticsDetails}
+                  getFlexDetails={this.getFlexDetails}
+                  changed={changed}
+                />
+                <PerfMarksList
+                  perfMarks={perfMarks}
+                  totalPerfMarks={totalPerfMarks}
+                  perfMarksOpen={this.state.perfMarksOpen}
+                  toggleSection={this.toggleSection}
+                  changed={changed}
+                />
+              </React.Fragment>
+            ) : (
+              <div style={{ textAlign: 'center' }}>
+                <h4>
+                  No Bazaarvoice resources detected.
+                </h4>
+              </div>
+            )}
             <AnalyticsList
               analytics={analytics}
               totalAnalytics={totalAnalytics}
@@ -564,9 +576,9 @@ class ExtensionBody extends React.Component {
               BVA={BVA}
               resetAnalytics={resetAnalytics}
             />
-            <TestPageButton
+            {bvContentPresent && <TestPageButton
               BV={BV}
-            />
+            />}
           </div>
         )
     )

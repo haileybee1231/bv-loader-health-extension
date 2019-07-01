@@ -364,10 +364,6 @@ class Popup extends React.Component {
             {this.state.open && (
               <div id="bv_sidebar_container">
                 <ExtensionHeader />
-                {/* TODO: Rethink this, right now the extension only shows info if bv.js is
-                on the page but we should at least minimally show analytics regardless of if
-                that's the case */}
-                {this.state.resources.bvjs ? (
                   <ExtensionBody
                     resources={resources}
                     apps={apps}
@@ -384,14 +380,6 @@ class Popup extends React.Component {
                     handleResourceClick={this.handleResourceClick}
                     resetAnalytics={this.resetAnalytics}
                   />
-                ) : (
-                  <div style={{ textAlign: 'center' }}>
-                    <h3>
-                      bv-loader not detected.
-                    </h3>
-                  </div>
-                )
-              }
               </div>
             )}
           </div>
