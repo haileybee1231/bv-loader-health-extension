@@ -6,3 +6,5 @@ public/dist/getBVScript.js
 public/dist/popup.js
 .DS_Store
 public.crx
+# Optional eslint cache
+.eslintcache

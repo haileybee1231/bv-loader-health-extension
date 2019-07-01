@@ -8,7 +8,7 @@ const BvJSDetails = ({
   environment,
   locale,
   buildTime,
-  bvJsScriptAttrs
+  bvJsScriptAttrs,
 }) => (
   <React.Fragment>
     <h3>Client</h3>
@@ -20,22 +20,23 @@ const BvJSDetails = ({
     <h3>Locale</h3>
     {locale}
     <h3>Build Time</h3>
-    {new Date(buildTime).toDateString()}, {new Date(buildTime).toLocaleTimeString('english')}
+    {new Date(buildTime).toDateString()},{' '}
+    {new Date(buildTime).toLocaleTimeString('english')}
     <h3>Capabilities</h3>
     <ul>
-      {capabilitiesArr.map((app, index) =>
+      {capabilitiesArr.map((app, index) => (
         <li key={index}>{app.replace('@', ', v')}</li>
-      )}
+      ))}
     </ul>
     <h3>Script Tag</h3>
     <table>
       <tbody>
-        {bvJsScriptAttrs.map((tuple, index) =>
+        {bvJsScriptAttrs.map((tuple, index) => (
           <TableRow name={tuple[0]} value={tuple[1]} key={index} />
-        )}
+        ))}
       </tbody>
     </table>
   </React.Fragment>
-)
+);
 
 export default BvJSDetails;

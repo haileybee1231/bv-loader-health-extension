@@ -8,11 +8,16 @@ const ExtensionHeader = () => (
   >
     <div className="navbar-inner">
       <div className="container-fluid">
-        <div className="brand brand-bv" style={{ lineHeight: '28.5714px' }}></div>
-        <p className="navbar-text no-float">bv-loader Client Health Inspector</p>
+        <div
+          className="brand brand-bv"
+          style={{ lineHeight: '28.5714px' }}
+        ></div>
+        <p className="navbar-text no-float">
+          bv-loader Client Health Inspector
+        </p>
       </div>
     </div>
   </header>
-)
+);
 
 export default ExtensionHeader;

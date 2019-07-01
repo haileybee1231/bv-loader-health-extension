@@ -1,26 +1,25 @@
-const sendMessage = type => new Promise(resolve => {
-  // TODO: Refactor this to be more generalized in case we want to add more namespaces.
-  try {
-    document.dispatchEvent(
-      new CustomEvent(
-        `${type}_obj_retrieved`,
-        {
+const sendMessage = type =>
+  new Promise(resolve => {
+    // TODO: Refactor this to be more generalized in case we want to add more namespaces.
+    try {
+      document.dispatchEvent(
+        /* eslint-disable no-undef, no-use-before-define */
+        new CustomEvent(`${type}_obj_retrieved`, {
           detail: JSON.stringify(
             type === '$bv'
               ? get$BVObject()
               : type === 'bva'
-                ? getBVAObject()
-                : getBVObject()
-          )
-        }
-      )
-    );
-    resolve();
-  }
-  catch (e) {
-    console.error(`Problem parsing ${type}: ${e}`);
-  }
-});
+              ? getBVAObject()
+              : getBVObject()
+          ),
+        })
+        /* eslint-enable no-use-before-define */
+      );
+      resolve();
+    } catch (e) {
+      console.error(`Problem parsing ${type}: ${e}`);
+    }
+  });
 
 const getBVObject = () => {
   const apps = [
@@ -32,7 +31,7 @@ const getBVObject = () => {
     'reviews',
     'seller_ratings',
     'spotlights',
-    'product_picker'
+    'product_picker',
   ];
   const { BV } = window;
 
@@ -58,7 +57,9 @@ const getBVObject = () => {
   apps.forEach(app => {
     const appNamespace = BV[app];
     if (appNamespace) {
-      app === 'review-highlights' && !appMap.review_highlights ? app = 'review_highlights' : null;
+      app === 'review-highlights' && !appMap.review_highlights
+        ? (app = 'review_highlights')
+        : null;
 
       appMap[app] = {
         config: {
@@ -66,8 +67,8 @@ const getBVObject = () => {
         },
         _analytics: {
           ...appNamespace._analytics,
-        }
-      }
+        },
+      };
     }
   });
 
@@ -78,19 +79,19 @@ const getBVObject = () => {
       client,
       locale,
       siteId,
-      SystemJS
+      SystemJS,
     },
     options: {
-      ...options
+      ...options,
     },
     ...appMap,
     pixel: {
       ...BV.pixel,
     },
     _render: {
-      ...BV._render
-    }
-  }
+      ...BV._render,
+    },
+  };
 
   // TODO: This was causing circular reference issues for certain pages under certain conditions.
   // My theory is that there was a race condition in the analytics queue, where references are
@@ -105,12 +106,12 @@ const getBVObject = () => {
         removeAnalytics(obj[prop]);
       }
     }
-  }
+  };
 
-  removeAnalytics(copy)
+  removeAnalytics(copy);
 
   return copy;
-}
+};
 
 const get$BVObject = () => {
   const { $BV } = window;
@@ -119,7 +120,13 @@ const get$BVObject = () => {
     return;
   }
 
-  let _baseUrl, isPRR = false, anonymous, autoTagEnabled, brandDomain, isEU, prrEnv;
+  let _baseUrl,
+    isPRR = false,
+    anonymous,
+    autoTagEnabled,
+    brandDomain,
+    isEU,
+    prrEnv;
 
   const { Internal } = $BV;
 
@@ -142,30 +149,30 @@ const get$BVObject = () => {
     ...window.$BV,
     Internal: {
       _baseUrl,
-      isPRR
+      isPRR,
     },
     _magpieSettings: {
       anonymous,
       autoTagEnabled,
       brandDomain,
       isEU,
-      prrEnv
-    }
-  };;
-}
+      prrEnv,
+    },
+  };
+};
 
 const getBVAObject = () => {
   const { BVA } = window;
 
   return {
-    ...BVA
+    ...BVA,
   };
-}
+};
 
 setTimeout(() => {
   // The $BV and BVA namespaces seem to take a little longer to be established, so
   // use promises just to be safe.
   sendMessage('bv')
     .then(() => sendMessage('$bv'))
-      .then(() => sendMessage('bva'));
+    .then(() => sendMessage('bva'));
 }, 2500);

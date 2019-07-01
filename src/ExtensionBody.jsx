@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React from 'react';
 import ResourcePage from './ResourceDetails/ResourcePage.jsx';
 import ResourceList from './Lists/ResourceList.jsx';
@@ -22,28 +23,28 @@ class ExtensionBody extends React.Component {
       globalsOpen: false,
       perfMarksOpen: false,
       analyticsOpen: false,
-      bvJsScriptAttrs: []
+      bvJsScriptAttrs: [],
     };
 
     // We use this hash map to cross reference the ways apps might be handed to us.
     this.appMap = {
       'Inline Ratings': 'inline_ratings',
-      'Questions': 'questions',
+      Questions: 'questions',
       'Rating Summary': 'rating_summary',
       'Review Highlights': 'review_highlights',
-      'Reviews': 'reviews',
+      Reviews: 'reviews',
       'Seller Ratings': 'seller_ratings',
-      'Spotlights': 'spotlights',
+      Spotlights: 'spotlights',
       'Product Picker': 'product_picker',
 
-      'inline_ratings': 'Inline Ratings',
-      'questions': 'Questions',
-      'rating_summary': 'Rating Summary',
-      'review_highlights': 'Review Highlights',
-      'reviews': 'Reviews',
-      'seller_ratings': 'Seller Ratings',
-      'spotlights': 'Spotlights',
-      'product_picker': 'Product Picker',
+      inline_ratings: 'Inline Ratings',
+      questions: 'Questions',
+      rating_summary: 'Rating Summary',
+      review_highlights: 'Review Highlights',
+      reviews: 'Reviews',
+      seller_ratings: 'Seller Ratings',
+      spotlights: 'Spotlights',
+      product_picker: 'Product Picker',
     };
   }
 
@@ -57,9 +58,9 @@ class ExtensionBody extends React.Component {
         this.getVersions(
           Object.entries(selectedResource)
             // take out all the request info, other than the health property,
-            .filter(([resource,]) => resource !== 'health')
+            .filter(([resource]) => resource !== 'health')
             // then take out ".min" so we can find it.
-            .map(([resource, details]) => details.url.replace('.min', ''))
+            .map(([, details]) => details.url.replace('.min', ''))
         );
       } else {
         // Otherwise, just fetch the resource
@@ -71,24 +72,24 @@ class ExtensionBody extends React.Component {
   handleClick = (resourceName, resource) => {
     this.setState({
       showResource: !this.state.showResource,
-      resourceName
+      resourceName,
     });
 
     if (resource) {
       this.props.handleResourceClick(resource);
     }
-  }
+  };
 
   // Set the version back to an empty string when you back out of a resource view so
   // that the next resource click will trigger another fetch.
-  resetVersion = () => this.setState({ version: '' })
+  resetVersion = () => this.setState({ version: '' });
 
   toggleSection = section => {
     const str = `${section}Open`;
     this.setState({
-      [str]: !this.state[str]
+      [str]: !this.state[str],
     });
-  }
+  };
 
   getBvJsScriptTag = () => {
     const bvJsScriptTag = document.querySelector('[src*="bv.js"]');
@@ -97,8 +98,14 @@ class ExtensionBody extends React.Component {
     const foundAttrs = {};
 
     for (let i = 0; i < attributes.length; i++) {
+      // eslint-disable-next-line prefer-const
       let { nodeName, nodeValue } = attributes[i];
-      nodeValue = nodeName === 'async' || nodeName === 'defer' ? <em>true</em> : nodeValue;
+      nodeValue =
+        nodeName === 'async' || nodeName === 'defer' ? (
+          <em>true</em>
+        ) : (
+          nodeValue
+        );
       foundAttrs[nodeName] = nodeValue;
       if (nodeName !== 'type') {
         bvJsScriptAttrs.push([nodeName, nodeValue]);
@@ -114,9 +121,9 @@ class ExtensionBody extends React.Component {
     }
 
     this.setState({
-      bvJsScriptAttrs
+      bvJsScriptAttrs,
     });
-  }
+  };
 
   // For both this function and the special one for render and components below it,
   // we actually request the resource ourselves so we can direclty parse the response.
@@ -124,37 +131,32 @@ class ExtensionBody extends React.Component {
   // so we can't get them as they come in, and we don't know that we'll need them unless
   // a user clicks on the name, so we don't do it until then.
   getVersion = url => {
-    fetch(url)
-      .then(response => response.text()
-        .then(text => {
-          this.setState({
-            resourceDetails: this.parseResponse(text),
-          })
-        })
-      )
-  }
+    fetch(url).then(response =>
+      response.text().then(text => {
+        this.setState({
+          resourceDetails: this.parseResponse(text),
+        });
+      })
+    );
+  };
 
   getVersions = urls => {
-    Promise.all(
-      urls.map(
-        url => fetch(url)
-      )
-    )
-      .then(responses => Promise.all(responses.map(res => res.text() )))
-        .then(texts => {
-          this.setState({
-            resourceDetails: {
-              render: texts[0],
-              components: texts[1],
-              health: this.props.resources.flex.health
-            },
-            // Right now we don't really keep much in render and components that's
-            // useful to people, so... I'm just setting the version to "retrieved"
-            // and setting the resource as the direct text response.
-            version: 'retrieved'
-          })
-        })
-  }
+    Promise.all(urls.map(url => fetch(url)))
+      .then(responses => Promise.all(responses.map(res => res.text())))
+      .then(texts => {
+        this.setState({
+          resourceDetails: {
+            render: texts[0],
+            components: texts[1],
+            health: this.props.resources.flex.health,
+          },
+          // Right now we don't really keep much in render and components that's
+          // useful to people, so... I'm just setting the version to "retrieved"
+          // and setting the resource as the direct text response.
+          version: 'retrieved',
+        });
+      });
+  };
 
   // This function is invoked for any resource that's fetched and parsed into its unique
   // and useful contents.
@@ -170,20 +172,29 @@ class ExtensionBody extends React.Component {
     const alias =
       resourceName === 'analytics.js'
         ? 'bv_analytics'
-        : resourceName.toLowerCase().replace('.', '').replace(' ', '_');
+        : resourceName
+            .toLowerCase()
+            .replace('.', '')
+            .replace(' ', '_');
     const resourceDetails = {
-      health: this.props.resources[alias].health
+      health: this.props.resources[alias].health,
     };
 
     if (resourceName === 'bv.js') {
       // A bunch of regex to capture things from the top of the bv.js file.
-      resourceDetails.capabilitiesArr = text.split('*/')[0].match(/[A-Za-z]+?_?[A-Za-z]+@[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/g);
+      resourceDetails.capabilitiesArr = text
+        .split('*/')[0]
+        .match(/[A-Za-z]+?_?[A-Za-z]+@[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}/g);
       resourceDetails.client = /client:"([A-Za-z0-9-_]*)"/.exec(text)[1];
       resourceDetails.site = /site:"([A-Za-z0-9-_]+)"/.exec(text)[1];
       resourceDetails.environment = /environment:"([a-z]+)"/.exec(text)[1];
       resourceDetails.locale = /locale:"([a-z]+_[A-Z]+)"/.exec(text)[1];
-      resourceDetails.buildTime = text.match(/\b(?:(?:Mon)|(?:Tues?)|(?:Wed(?:nes)?)|(?:Thur?s?)|(?:Fri)|(?:Sat(?:ur)?)|(?:Sun))(?:day)?\b[:\-,]?\s*[a-zA-Z]{3,9}\s+\d{1,2}\s*,?\s*\d{4} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} GMT\+[0-9]{4}/g);
-      resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/)
+      resourceDetails.buildTime = text.match(
+        /\b(?:(?:Mon)|(?:Tues?)|(?:Wed(?:nes)?)|(?:Thur?s?)|(?:Fri)|(?:Sat(?:ur)?)|(?:Sun))(?:day)?\b[:\-,]?\s*[a-zA-Z]{3,9}\s+\d{1,2}\s*,?\s*\d{4} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2} GMT\+[0-9]{4}/g
+      );
+      resourceDetails.version = text.match(
+        /[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/
+      );
     } else if (resourceName === 'PRR') {
       // For PRR, we attempt to find the "configure" sub namespace in the $BV section of
       // bvapi.js, which has some useful stuf in it. This could probably also be gleaned
@@ -202,19 +213,20 @@ class ExtensionBody extends React.Component {
         resourceDetails.submissionUI = global.submissionUI;
         resourceDetails.urlBase = global.urlBase;
         resourceDetails.urlPathPrefix = global.urlPathPrefix || '""';
-      }
-      catch (e) {
-        console.error(e)
+      } catch (e) {
+        console.error(e);
       }
     } else if (resourceName === 'Firebird') {
       let configuration;
-      
+
       try {
         // I found this wonky thing to allow you to take a stringified JS object which is not in the right
         // format to be JSON.parse'd and coerce it into an actual lobject, not super sure how it works...
         // TODO: Not sure this is 100% safe and we should probably do some sanitization here.
         // Solution cribbed from https://stackoverflow.com/questions/1086404/string-to-object-in-js.
-        configuration = new Function('return' + /e\.exports=({rawFirebirdConfig:.*\(UTC\)"})/.exec(text)[1])();
+        configuration = new Function(
+          'return' + /e\.exports=({rawFirebirdConfig:.*\(UTC\)"})/.exec(text)[1]
+        )();
         const { rawFirebirdConfig } = configuration;
 
         resourceDetails.version = configuration.firebirdVersion;
@@ -222,15 +234,17 @@ class ExtensionBody extends React.Component {
         resourceDetails.siteId = configuration.siteId;
         resourceDetails.buildTime = configuration.date;
 
-        const { implementations: { weights } } = rawFirebirdConfig;
+        const {
+          implementations: { weights },
+        } = rawFirebirdConfig;
         resourceDetails.implementations = [];
         Object.keys(weights).forEach(implementation => {
           const implementationObj = {};
-          const config = rawFirebirdConfig.configs[implementation]
+          const config = rawFirebirdConfig.configs[implementation];
 
           implementationObj.locale = config.locale;
           implementationObj.containers = {
-            ...config.containers
+            ...config.containers,
           };
           implementationObj.displayCode = config.displaycode;
           implementationObj.clientName = config.clientname;
@@ -240,46 +254,51 @@ class ExtensionBody extends React.Component {
           implementationObj.deploymentVersion = config.deploymentVersion;
           implementationObj.revision = config.revision;
 
-          resourceDetails.implementations.push({ [implementation]: implementationObj })
-        })
-      }
-      catch (e) {
-        console.error(e)
+          resourceDetails.implementations.push({
+            [implementation]: implementationObj,
+          });
+        });
+      } catch (e) {
+        console.error(e);
       }
     } else if (resourceName === 'analytics.js') {
-      resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/)
-      
+      resourceDetails.version = text.match(
+        /[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/
+      );
+
       // TODO: There might be more we need to get out of this file, which is why I have it
       // being treated separately. Not sure what we need, though, that we couldn't get from the
       // namespaces.
     } else {
-      resourceDetails.version = text.match(/[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/);
+      resourceDetails.version = text.match(
+        /[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}/
+      );
     }
 
     return resourceDetails;
-  }
+  };
 
   getAnalyticsDetails = analyticsDetails => {
     if (!this.state.analyticsDetails) {
       this.setState({
-        analyticsDetails
-      })
+        analyticsDetails,
+      });
     }
-  }
+  };
 
   getFlexDetails = flexDetails => {
     if (!this.state.flexDetails) {
       this.setState({
-        flexDetails
-      })
+        flexDetails,
+      });
     }
-  }
+  };
 
-  assessHealth = (name, details) => {
+  assessHealth = name => {
     // We initialize health status at 2, which is green (yellow is 1, red is 0),
     //and ding appropriately based on relevant conditions
     const health = {
-      score: 2
+      score: 2,
     };
     let numOfIssues = 0;
 
@@ -287,7 +306,7 @@ class ExtensionBody extends React.Component {
       health.score = score;
       health[issue] = true;
       numOfIssues++;
-    }
+    };
 
     // A lot of this is sort of arbitrary, for all these resources.
     // TODO: Go through these and find actually useful for criteria for determining health.
@@ -299,9 +318,12 @@ class ExtensionBody extends React.Component {
         scriptAttrs.forEach(tuple => {
           if (tuple[0] === 'async' && (!tuple[1] || tuple[1] === 'false')) {
             updateHealth(1, 'Async Not Enabled on Script Tag');
-          } else if (tuple[0] === 'defer' && (!tuple[1] || tuple[1] === 'false')) {
+          } else if (
+            tuple[0] === 'defer' &&
+            (!tuple[1] || tuple[1] === 'false')
+          ) {
             updateHealth(1, 'Defer Not Enabled on Script Tag');
-          } else if (tuple[0] === 'src' && (!tuple[1])) {
+          } else if (tuple[0] === 'src' && !tuple[1]) {
             updateHealth(0, 'src Missing on Script Tag');
           }
         });
@@ -334,7 +356,7 @@ class ExtensionBody extends React.Component {
           }
         }
       }
-    } else if(name === 'firebird') {
+    } else if (name === 'firebird') {
       // ¯\_(ツ)_/¯
       // Literally no idea what to assess here for health.
     } else if (name === 'prr') {
@@ -346,13 +368,13 @@ class ExtensionBody extends React.Component {
         const { Internal } = $BV;
 
         if (!Internal) {
-          updateHealth(0, '$BV.Internal Namespace Is Missing')
+          updateHealth(0, '$BV.Internal Namespace Is Missing');
         }
       }
 
       // ¯\_(ツ)_/¯
       // Ditto.
-    } else if (name === 'bv_analytics') { 
+    } else if (name === 'bv_analytics') {
       // Is any of this important? I have no idea!
       const { BVA } = this.props;
 
@@ -364,7 +386,6 @@ class ExtensionBody extends React.Component {
         }
 
         const { trackers } = BVA;
-
 
         for (const tracker in trackers) {
           const { _settings, _id, _shared } = trackers[tracker];
@@ -378,23 +399,35 @@ class ExtensionBody extends React.Component {
               updateHealth(1, `No ID Object Configured for ${tracker} Tracker`);
             } else {
               if (!_id.hostname) {
-                updateHealth(1, `No Hostname Configured for ${tracker} Tracker`);
+                updateHealth(
+                  1,
+                  `No Hostname Configured for ${tracker} Tracker`
+                );
               }
-  
+
               if (!_settings.anonymous && (!_id.BVID && !_id.BVSID)) {
-                updateHealth(1, `${tracker} Tracker Not Set to Anonymous, But No Cookies Assigned`);
+                updateHealth(
+                  1,
+                  `${tracker} Tracker Not Set to Anonymous, But No Cookies Assigned`
+                );
               } else if (_settings.anonymous && (_id.BVID || _id.BVSID)) {
-                updateHealth(1, `${tracker} Tracker Set to Anonymous, But Cookies Are Assigned`);
+                updateHealth(
+                  1,
+                  `${tracker} Tracker Set to Anonymous, But Cookies Are Assigned`
+                );
               }
             }
 
             if (!_shared) {
-              updateHealth(1, `No Shared Settings Configured for ${tracker} Tracker`);
+              updateHealth(
+                1,
+                `No Shared Settings Configured for ${tracker} Tracker`
+              );
             } else {
               if (!_shared.client) {
                 updateHealth(1, `No Client Set for ${tracker} Tracker`);
               }
-  
+
               if (!_shared.loadId) {
                 updateHealth(1, `No loadId Set for ${tracker} Tracker`);
               }
@@ -402,13 +435,12 @@ class ExtensionBody extends React.Component {
           }
         }
       }
-
     } else if (this.appMap[name]) {
       // This condition is for individual apps, which will be cross-referenced with the
       // app map in the constructor.
-      const container = document.querySelectorAll(`[data-bv-show="${
-        name === 'inline_ratings' ? 'inline_rating' : name
-      }"`)[0];
+      const container = document.querySelectorAll(
+        `[data-bv-show="${name === 'inline_ratings' ? 'inline_rating' : name}"`
+      )[0];
 
       const namespace = this.props.BV ? this.props.BV[name] : null;
 
@@ -421,20 +453,32 @@ class ExtensionBody extends React.Component {
       }
 
       if (container && namespace) {
-        if (!container.dataset[name === 'spotlights' ? 'bvSubjectId' : 'bvProductId']) {
+        if (
+          !container.dataset[
+            name === 'spotlights' ? 'bvSubjectId' : 'bvProductId'
+          ]
+        ) {
           if (!container.dataset.bvProductId && container.dataset.bvProductid) {
-            updateHealth(1, 'Potentially Wrong bvProductId Casing')
+            updateHealth(1, 'Potentially Wrong bvProductId Casing');
           } else {
-            updateHealth(1, `${name === 'spotlights' ? 'bvSubjectId' : 'bvProductId'} Missing`);
+            updateHealth(
+              1,
+              `${name === 'spotlights' ? 'bvSubjectId' : 'bvProductId'} Missing`
+            );
           }
         }
-        
+
         if (!namespace.config[name === 'spotlights' ? 'cloudKey' : 'apiKey']) {
           if (['reviews', 'questions'].indexOf(name) === -1) {
-            updateHealth(1, `${name === 'spotlights' ? 'API Key' : 'Cloud Key'} Missing from Config`);
+            updateHealth(
+              1,
+              `${
+                name === 'spotlights' ? 'API Key' : 'Cloud Key'
+              } Missing from Config`
+            );
           }
         }
-        
+
         if (!namespace._analytics) {
           updateHealth(1, `Analytings Missing from ${name} Global`);
         }
@@ -446,7 +490,7 @@ class ExtensionBody extends React.Component {
         updateHealth(0, 'BV Namespace Is Missing');
       } else {
         const { _render } = this.props.BV;
-        
+
         if (!_render) {
           updateHealth(0, 'No _render Namespace on BV Global');
         } else {
@@ -460,9 +504,9 @@ class ExtensionBody extends React.Component {
               }
             }
           }
-  
+
           if (!perfMark) {
-            updateHealth(1, 'No _render PerfMark registered')
+            updateHealth(1, 'No _render PerfMark registered');
           }
         }
       }
@@ -477,7 +521,7 @@ class ExtensionBody extends React.Component {
     }
 
     return health;
-  }
+  };
 
   render() {
     const {
@@ -493,95 +537,95 @@ class ExtensionBody extends React.Component {
       BV,
       $BV,
       BVA,
-      resetAnalytics
+      resetAnalytics,
     } = this.props;
 
     // TODO: Maybe this doesn't need to happen on every render? Find a way to optimize.
     for (const resource in resources) {
       if (resources[resource]) {
-        resources[resource].health = this.assessHealth(resource, resources[resource]);
+        resources[resource].health = this.assessHealth(
+          resource,
+          resources[resource]
+        );
       }
     }
 
-    const bvContentPresent = !!Object.values(resources).slice(0, -1).filter(resource => resource).length;
+    const bvContentPresent = !!Object.values(resources)
+      .slice(0, -1)
+      .filter(resource => resource).length;
 
     return (
       // When a user clicks on a resource name, change the extension body's content to just
       // show details on that resource
-      this.state.showResource
-        ? (
-          <ResourcePage
-            resourceName={this.state.resourceName}
-            resourceDetails={this.state.resourceDetails}
-            appDetails={
-              this.appMap[this.state.resourceName]
-                ? apps[this.appMap[this.state.resourceName]]
-                : null
-            }
+      this.state.showResource ? (
+        <ResourcePage
+          resourceName={this.state.resourceName}
+          resourceDetails={this.state.resourceDetails}
+          appDetails={
+            this.appMap[this.state.resourceName]
+              ? apps[this.appMap[this.state.resourceName]]
+              : null
+          }
+          BVA={BVA}
+          analyticsDetails={this.state.analyticsDetails}
+          flexDetails={this.state.flexDetails}
+          selectedResource={selectedResource}
+          handleClick={this.handleClick}
+          resetVersion={this.resetVersion}
+          bvJsScriptAttrs={this.state.bvJsScriptAttrs}
+          getBvJsScriptTag={this.getBvJsScriptTag}
+        />
+      ) : (
+        <div style={{ paddingLeft: '20px', paddingBottom: '20px' }}>
+          {bvContentPresent ? (
+            <React.Fragment>
+              <ResourceList
+                resources={resources}
+                changed={changed}
+                resourcesOpen={this.state.resourcesOpen}
+                toggleSection={this.toggleSection}
+                handleClick={this.handleClick}
+              />
+              <GlobalsList
+                globalsOpen={this.state.globalsOpen}
+                toggleSection={this.toggleSection}
+                handleClick={this.handleClick}
+                BV={BV}
+                $BV={$BV}
+                BVA={BVA}
+                getBvJsScriptTag={this.getBvJsScriptTag}
+                bvJsScriptAttrs={this.state.bvJsScriptAttrs}
+                getAnalyticsDetails={this.getAnalyticsDetails}
+                getFlexDetails={this.getFlexDetails}
+                changed={changed}
+              />
+              <PerfMarksList
+                perfMarks={perfMarks}
+                totalPerfMarks={totalPerfMarks}
+                perfMarksOpen={this.state.perfMarksOpen}
+                toggleSection={this.toggleSection}
+                changed={changed}
+              />
+            </React.Fragment>
+          ) : (
+            <div style={{ textAlign: 'center' }}>
+              <h4>No Bazaarvoice resources detected.</h4>
+            </div>
+          )}
+          <AnalyticsList
+            analytics={analytics}
+            totalAnalytics={totalAnalytics}
+            analyticsOpen={this.state.analyticsOpen}
+            toggleSection={this.toggleSection}
+            anonymous={anonymous}
+            changed={changed}
             BVA={BVA}
-            analyticsDetails={this.state.analyticsDetails}
-            flexDetails={this.state.flexDetails}
-            selectedResource={selectedResource}
-            handleClick={this.handleClick}
-            resetVersion={this.resetVersion}
-            bvJsScriptAttrs={this.state.bvJsScriptAttrs}
-            getBvJsScriptTag={this.getBvJsScriptTag}
+            resetAnalytics={resetAnalytics}
           />
-        ) : (
-          <div style={{ paddingLeft: '20px', paddingBottom: '20px' }}>
-            {bvContentPresent ? (
-              <React.Fragment>
-                <ResourceList
-                  resources={resources}
-                  changed={changed}
-                  resourcesOpen={this.state.resourcesOpen}
-                  toggleSection={this.toggleSection}
-                  handleClick={this.handleClick}
-                />
-                <GlobalsList
-                  globalsOpen={this.state.globalsOpen}
-                  toggleSection={this.toggleSection}
-                  handleClick={this.handleClick}
-                  BV={BV}
-                  $BV={$BV}
-                  BVA={BVA}
-                  getBvJsScriptTag={this.getBvJsScriptTag}
-                  bvJsScriptAttrs={this.state.bvJsScriptAttrs}
-                  getAnalyticsDetails={this.getAnalyticsDetails}
-                  getFlexDetails={this.getFlexDetails}
-                  changed={changed}
-                />
-                <PerfMarksList
-                  perfMarks={perfMarks}
-                  totalPerfMarks={totalPerfMarks}
-                  perfMarksOpen={this.state.perfMarksOpen}
-                  toggleSection={this.toggleSection}
-                  changed={changed}
-                />
-              </React.Fragment>
-            ) : (
-              <div style={{ textAlign: 'center' }}>
-                <h4>
-                  No Bazaarvoice resources detected.
-                </h4>
-              </div>
-            )}
-            <AnalyticsList
-              analytics={analytics}
-              totalAnalytics={totalAnalytics}
-              analyticsOpen={this.state.analyticsOpen}
-              toggleSection={this.toggleSection}
-              anonymous={anonymous}
-              changed={changed}
-              BVA={BVA}
-              resetAnalytics={resetAnalytics}
-            />
-            {bvContentPresent && <TestPageButton
-              BV={BV}
-            />}
-          </div>
-        )
-    )
+          {bvContentPresent && <TestPageButton BV={BV} />}
+        </div>
+      )
+    );
   }
 }
 

@@ -11,7 +11,7 @@ module.exports = {
   entry: {
     getBVScript: __dirname + '/src/scripts/getBVScript',
     popup: __dirname + '/src/scripts/popup',
-    background: __dirname + '/src/scripts/background',
+    background: __dirname + '/src/scripts/background'
   },
   output: {
     path: ROOT_PATH + '/public/dist',
@@ -34,19 +34,21 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [{
+        use: [
+          {
             loader: 'file-loader',
             options: {
-                name: '[name].[ext]',
-                outputPath: 'fonts/'
+              name: '[name].[ext]',
+              outputPath: 'fonts/'
             }
-        }]
+          }
+        ]
       }
-    ],
+    ]
   },
   plugins: []
-}
+};

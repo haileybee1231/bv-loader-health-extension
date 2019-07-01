@@ -1,7 +1,12 @@
 import React from 'react';
 import TableRow from '../Generic/TableRow.jsx';
 
-const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) => {
+const ResourceList = ({
+  resources,
+  toggleSection,
+  resourcesOpen,
+  handleClick,
+}) => {
   const {
     bvjs,
     firebird,
@@ -13,7 +18,7 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
     inline_ratings,
     spotlights,
     bv_analytics,
-    flex
+    flex,
   } = resources;
 
   const resourceArr = [
@@ -27,10 +32,13 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
     ['Questions', questions],
     ['Review Highlights', review_highlights],
     ['Spotlights', spotlights],
-    ['Flex', window.location.href.includes('bv_segment=layouts_pilot') ? flex : null]
-  ]
+    [
+      'Flex',
+      window.location.href.includes('bv_segment=layouts_pilot') ? flex : null,
+    ],
+  ];
 
-  const trueOrFalse = condition => condition ? <em>true</em> : 'false';
+  const trueOrFalse = condition => (condition ? <em>true</em> : 'false');
 
   return (
     <React.Fragment>
@@ -38,7 +46,9 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
         onClick={() => toggleSection('resources')}
         style={{ cursor: 'pointer' }}
       >
-        <i className={resourcesOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
+        <i
+          className={resourcesOpen ? 'icon-chevron-up' : 'icon-chevron-down'}
+        />
         Resources
       </h3>
       {resourcesOpen && (
@@ -49,7 +59,7 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
               <th>On Page</th>
               <th style={{ textAlign: 'center' }}>Health</th>
             </tr>
-            {resourceArr.map((resourceTuple, index) =>
+            {resourceArr.map((resourceTuple, index) => (
               <TableRow
                 name={resourceTuple[0]}
                 value={trueOrFalse(resourceTuple[1])}
@@ -59,12 +69,12 @@ const ResourceList = ({ resources, toggleSection, resourcesOpen, handleClick }) 
                 status={resourceTuple[1] ? resourceTuple[1].health : null}
                 key={index}
               />
-            )}
+            ))}
           </tbody>
         </table>
       )}
     </React.Fragment>
-  )
-}
+  );
+};
 
 export default ResourceList;

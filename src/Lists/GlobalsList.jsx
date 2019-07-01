@@ -1,6 +1,6 @@
 import React from 'react';
 import TableRow from '../Generic/TableRow.jsx';
-import _get from 'lodash/get'
+import _get from 'lodash/get';
 
 class GlobalsList extends React.Component {
   constructor(props) {
@@ -10,8 +10,8 @@ class GlobalsList extends React.Component {
       BV: null,
       $BV: null,
       BVA: null,
-      containers: []
-    }
+      containers: [],
+    };
   }
 
   componentDidMount() {
@@ -33,15 +33,19 @@ class GlobalsList extends React.Component {
     if (containerNodeList.length && this.props.BV) {
       this.setGlobalsState('BV', containerNodeList);
     } else {
-      setTimeout(() => this.pollForContainers(interval, containerNodeList), interval)
+      setTimeout(
+        () => this.pollForContainers(interval, containerNodeList),
+        interval
+      );
     }
-  }
+  };
 
-  // A lot of these globals were decided on somewhat haphazardly. 
+  // A lot of these globals were decided on somewhat haphazardly.
   // TODO: Be more discerning with which globals are harvested.
   setGlobalsState = (resource, containerNodeList = this.state.containers) => {
-    const containers = [...containerNodeList]
-        .map(container => container.dataset);
+    const containers = [...containerNodeList].map(
+      container => container.dataset
+    );
 
     const { [resource]: namespace } = this.props;
 
@@ -71,7 +75,9 @@ class GlobalsList extends React.Component {
       const bvLocal = getProp(`${optionsPath}.bvLocal.enabled`);
       const deploymentPath = getProp(`${optionsPath}.deploymentPath`);
       const deploymentVersion = getProp(`${optionsPath}.deploymentVersion`);
-      const fingerprintingEnabled = getProp(`${optionsPath}.fingerprintingEnabled`);
+      const fingerprintingEnabled = getProp(
+        `${optionsPath}.fingerprintingEnabled`
+      );
       const pageSize = getProp(`${optionsPath}.page.size`);
       const sci = getProp(`${optionsPath}.sci.enabled`);
       const trackingDataRegion = getProp(`${optionsPath}.trackingDataRegion`);
@@ -82,7 +88,7 @@ class GlobalsList extends React.Component {
       }
 
       this.setState({
-        BV: { 
+        BV: {
           'Data Environment': dataEnv,
           'Server Environment': serverEnv,
           'Site ID': siteId,
@@ -98,11 +104,13 @@ class GlobalsList extends React.Component {
           'Fingerprinting Enabled': String(!!fingerprintingEnabled),
           'Page Size': pageSize,
           'SCI Trackers Enabled': sci,
-          'Analytics Vendors': analyticsVendors ? Object.keys(analyticsVendors).join(', ') : false,
-          'Tracking Data Region': trackingDataRegion
+          'Analytics Vendors': analyticsVendors
+            ? Object.keys(analyticsVendors).join(', ')
+            : false,
+          'Tracking Data Region': trackingDataRegion,
         },
         containers,
-        bvJsScriptAttrs
+        bvJsScriptAttrs,
       });
 
       this.props.getAnalyticsDetails({
@@ -110,11 +118,11 @@ class GlobalsList extends React.Component {
         fingerprintingEnabled: !!fingerprintingEnabled,
         sci: !!sci,
         analyticsVendors,
-        trackingDataRegion
+        trackingDataRegion,
       });
 
       this.props.getFlexDetails({
-        layouts: _render ? _render.layouts : null
+        layouts: _render ? _render.layouts : null,
       });
     } else if (namespace && resource === '$BV') {
       const InternalPath = 'Internal';
@@ -124,7 +132,10 @@ class GlobalsList extends React.Component {
       const _baseUrl = _get(namespace, `${InternalPath}._baseUrl`);
 
       const anonymous = _get(namespace, `${_magpieSettingsPath}.anonymous`);
-      const autoTagEnabled = _get(namespace, `${_magpieSettingsPath}.autoTagEnabled`);
+      const autoTagEnabled = _get(
+        namespace,
+        `${_magpieSettingsPath}.autoTagEnabled`
+      );
       const brandDomain = _get(namespace, `${_magpieSettingsPath}.brandDomain`);
       const isEU = _get(namespace, `${_magpieSettingsPath}.isEU`);
 
@@ -134,14 +145,14 @@ class GlobalsList extends React.Component {
       }
 
       this.setState({
-        $BV: { 
+        $BV: {
           'Is PRR': isPRR || 'false',
           'Base URL': _baseUrl || '""',
           Anonymous: anonymous || 'false',
           'Auto-Tag Enabled': autoTagEnabled || 'false',
           'Brand Domain': brandDomain,
-          'Is EU': String(!!isEU)
-        }
+          'Is EU': String(!!isEU),
+        },
       });
     } else if (namespace && resource === 'BVA') {
       const { trackers, loadId } = namespace;
@@ -149,25 +160,16 @@ class GlobalsList extends React.Component {
       this.setState({
         BVA: {
           loadId,
-          trackers: Object.keys(trackers).join(', ')
-        }
-      })
+          trackers: Object.keys(trackers).join(', '),
+        },
+      });
     }
-  }
+  };
 
   render() {
-    const {
-      globalsOpen,
-      toggleSection,
-      bvJsScriptAttrs
-    } = this.props;
+    const { globalsOpen, toggleSection, bvJsScriptAttrs } = this.props;
 
-    const {
-      containers,
-      BV,
-      $BV,
-      BVA
-    } = this.state;
+    const { containers, BV, $BV, BVA } = this.state;
 
     // The global entries below all have a lot in common and can probable be programmaticaly generated
     // from one constructor.
@@ -178,7 +180,9 @@ class GlobalsList extends React.Component {
           onClick={() => toggleSection('globals')}
           style={{ cursor: 'pointer' }}
         >
-          <i className={globalsOpen ? 'icon-chevron-up' : 'icon-chevron-down'} />
+          <i
+            className={globalsOpen ? 'icon-chevron-up' : 'icon-chevron-down'}
+          />
           Globals
         </h3>
         {globalsOpen && (
@@ -194,25 +198,35 @@ class GlobalsList extends React.Component {
 
                   return (
                     <div key={index} style={{ width: '80%', margin: 'auto' }}>
-                      <b style={{ fontFamily: 'GibsonRegular,Helvetica,Arial,sans-serif', fontSize: '14px' }}>data-bv-show: <em>{container.bvShow}</em></b>
+                      <b
+                        style={{
+                          fontFamily:
+                            'GibsonRegular,Helvetica,Arial,sans-serif',
+                          fontSize: '14px',
+                        }}
+                      >
+                        data-bv-show: <em>{container.bvShow}</em>
+                      </b>
                       <table>
                         <tbody>
-                          {containerArr.map((tuple, index) =>
+                          {containerArr.map((tuple, index) => (
                             <TableRow
                               name={tuple[0]}
                               value={tuple[1]}
                               key={index}
                             />
-                          )}
+                          ))}
                         </tbody>
                       </table>
                     </div>
-                  )
+                  );
                 })}
               </div>
             ) : (
               <img
-                src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}
+                src={`${chrome.extension.getURL(
+                  '/assets/images/loading-spinner.svg'
+                )}`}
                 style={{ height: '40px' }}
               />
             )}
@@ -221,19 +235,17 @@ class GlobalsList extends React.Component {
               <React.Fragment>
                 <table style={{ width: '80%', margin: 'auto' }}>
                   <tbody>
-                  {bvJsScriptAttrs.map((tuple, index) =>
-                    <TableRow
-                      name={tuple[0]}
-                      value={tuple[1]}
-                      key={index}
-                    />
-                  )}
+                    {bvJsScriptAttrs.map((tuple, index) => (
+                      <TableRow name={tuple[0]} value={tuple[1]} key={index} />
+                    ))}
                   </tbody>
                 </table>
               </React.Fragment>
             ) : (
               <img
-                src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}
+                src={`${chrome.extension.getURL(
+                  '/assets/images/loading-spinner.svg'
+                )}`}
                 style={{ height: '40px' }}
               />
             )}
@@ -242,19 +254,24 @@ class GlobalsList extends React.Component {
               <React.Fragment>
                 <table style={{ width: '80%', margin: 'auto' }}>
                   <tbody>
-                  {Object.entries(BV).map((tuple, index) =>
-                    tuple[1] && <TableRow
-                      name={tuple[0]}
-                      value={String(tuple[1])}
-                      key={index}
-                    />
-                  )}
+                    {Object.entries(BV).map(
+                      (tuple, index) =>
+                        tuple[1] && (
+                          <TableRow
+                            name={tuple[0]}
+                            value={String(tuple[1])}
+                            key={index}
+                          />
+                        )
+                    )}
                   </tbody>
                 </table>
               </React.Fragment>
             ) : (
               <img
-                src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}
+                src={`${chrome.extension.getURL(
+                  '/assets/images/loading-spinner.svg'
+                )}`}
                 style={{ height: '40px' }}
               />
             )}
@@ -263,19 +280,24 @@ class GlobalsList extends React.Component {
               <React.Fragment>
                 <table style={{ width: '80%', margin: 'auto' }}>
                   <tbody>
-                  {Object.entries($BV).map((tuple, index) =>
-                    tuple[1] && <TableRow
-                      name={tuple[0]}
-                      value={String(tuple[1])}
-                      key={index}
-                    />
-                  )}
+                    {Object.entries($BV).map(
+                      (tuple, index) =>
+                        tuple[1] && (
+                          <TableRow
+                            name={tuple[0]}
+                            value={String(tuple[1])}
+                            key={index}
+                          />
+                        )
+                    )}
                   </tbody>
                 </table>
               </React.Fragment>
             ) : (
               <img
-                src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}
+                src={`${chrome.extension.getURL(
+                  '/assets/images/loading-spinner.svg'
+                )}`}
                 style={{ height: '40px' }}
               />
             )}
@@ -284,26 +306,31 @@ class GlobalsList extends React.Component {
               <React.Fragment>
                 <table style={{ width: '80%', margin: 'auto' }}>
                   <tbody>
-                  {Object.entries(BVA).map((tuple, index) =>
-                    tuple[1] && <TableRow
-                      name={tuple[0]}
-                      value={String(tuple[1])}
-                      key={index}
-                    />
-                  )}
+                    {Object.entries(BVA).map(
+                      (tuple, index) =>
+                        tuple[1] && (
+                          <TableRow
+                            name={tuple[0]}
+                            value={String(tuple[1])}
+                            key={index}
+                          />
+                        )
+                    )}
                   </tbody>
                 </table>
               </React.Fragment>
             ) : (
               <img
-                src={`${chrome.extension.getURL('/assets/images/loading-spinner.svg')}`}
+                src={`${chrome.extension.getURL(
+                  '/assets/images/loading-spinner.svg'
+                )}`}
                 style={{ height: '40px' }}
               />
             )}
           </React.Fragment>
         )}
       </React.Fragment>
-    )
+    );
   }
 }
 

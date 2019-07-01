@@ -1,5 +1,5 @@
 import React from 'react';
-import _cloneDeep from 'lodash/cloneDeep'
+import _cloneDeep from 'lodash/cloneDeep';
 import ExtensionHeader from './ExtensionHeader.jsx';
 import ExtensionBody from './ExtensionBody.jsx';
 import ShadowDOM from 'react-shadow';
@@ -28,8 +28,8 @@ class Popup extends React.Component {
         product_picker: null,
         flex: {
           render: null,
-          components: null
-        }
+          components: null,
+        },
       },
       apps: {},
       BV: null,
@@ -40,7 +40,7 @@ class Popup extends React.Component {
       perfMarks: null,
       anonymous: false,
       selectedResource: null,
-      changed: true
+      changed: true,
     };
   }
 
@@ -50,18 +50,18 @@ class Popup extends React.Component {
   injectScriptAndRetrieveBV = () => {
     const s = document.createElement('script');
     s.src = chrome.extension.getURL('dist/getBVScript.js');
-    (document.head||document.documentElement).appendChild(s);
+    (document.head || document.documentElement).appendChild(s);
     // Mark that script has been injected so it doesn't happen multiple times
     this.setState({
-      scriptInjected: true
+      scriptInjected: true,
     });
     // Clean up script after invocation
     s.onload = () => s.remove();
-  }
+  };
 
   // When we receive a global object from the injected script, we need to parse it
   parseGlobalObject = ({ detail }, namespace) => {
-     try {
+    try {
       const parsed = JSON.parse(detail) || {};
       // In testing, it seems like Firebird/PRR sometimes load slower, and analytics
       // slower than that, and we need to give the older namespaces time to be created,
@@ -77,43 +77,42 @@ class Popup extends React.Component {
           this.setState({
             resources: {
               ...resourcesCopy,
-              firebird: false
-            }
+              firebird: false,
+            },
           });
-          
         } else {
           // If Internal is defined and it's NOT PRR, we know we have Firebird
           this.setState({
             resources: {
               ...resourcesCopy,
               prr: false,
-            }
+            },
           });
         }
       }
 
       // Regardless of which namespace, set it on the state object
-      this.setState({
-        [namespace]: parsed || 'Namespace not present.',
-        changed: true
-      },
+      this.setState(
+        {
+          [namespace]: parsed || 'Namespace not present.',
+          changed: true,
+        },
         // Several times throughout this repo we utilize the "changed" prop to force
         // children to rerender even when nested objects are passed through state
         this.setState({
-          changed: false
+          changed: false,
         })
-      )
+      );
 
       if (namespace === 'BV') {
         // If we're given the BV namespace, we also have a bunch of apps registered to
         // the namespace
-        this.parseApps(parsed)
+        this.parseApps(parsed);
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.error(e);
     }
-  }
+  };
 
   parseApps = BV => {
     const apps = [
@@ -124,7 +123,7 @@ class Popup extends React.Component {
       'reviews',
       'seller_ratings',
       'spotlights',
-      'product_picker'
+      'product_picker',
     ];
 
     apps.forEach(app => {
@@ -133,35 +132,34 @@ class Popup extends React.Component {
           apps: {
             ...this.state.apps,
             [app]: {
-              ...BV[app]
-            }
-          }
-        })
+              ...BV[app],
+            },
+          },
+        });
       }
-    })
-  }
+    });
+  };
 
   componentDidMount() {
     // When the extension mounts, we add event listeners so that the injected script
     // can signal that it's retrieved the global namespaces from the window object
-    this.bvObjListener = document.addEventListener(
-      'bv_obj_retrieved',
-      bvObj => this.parseGlobalObject(bvObj, 'BV')
+    this.bvObjListener = document.addEventListener('bv_obj_retrieved', bvObj =>
+      this.parseGlobalObject(bvObj, 'BV')
     );
 
     this.$bvObjListener = document.addEventListener(
       '$bv_obj_retrieved',
       $bvObj => {
-        this.parseGlobalObject($bvObj, '$BV')
+        this.parseGlobalObject($bvObj, '$BV');
       }
     );
 
     this.bvaObjListener = document.addEventListener(
       'bva_obj_retrieved',
       bvaObj => {
-        this.parseGlobalObject(bvaObj, 'BVA')
+        this.parseGlobalObject(bvaObj, 'BVA');
       }
-    )
+    );
 
     // This 5 second timer is arbitrary, but we just want to collect all the perf marks
     // TODO: Add functionality to query for more perf marks after the intiial retrieval,
@@ -172,22 +170,20 @@ class Popup extends React.Component {
 
     // This listener monitors the chrome runtime for messages which will correlate to resource
     // requests intercepted by the webRequest API
-    this.chromeEventListener = chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      switch(request.action) {
+    this.chromeEventListener = chrome.runtime.onMessage.addListener(request => {
+      switch (request.action) {
         case 'toggle':
           this.setState({ open: !this.state.open });
           // To prevent the extension from gumming up page loads, don't inject the script
           // to harvest namespaces until the user has toggled it, and only do so once.
           if (!this.state.scriptInjected) {
-            this.injectScriptAndRetrieveBV()
+            this.injectScriptAndRetrieveBV();
           }
           break;
         case 'capture_events':
-          let {
-            resource,
-            analytics_event,
-            anonymous
-          } = checkRequest(request.data.url);
+          var { resource, analytics_event, anonymous } = checkRequest(
+            request.data.url
+          );
 
           if (resource && !this.state.resources[resource]) {
             // The only time we return an array for the resource variable is when the resource
@@ -201,45 +197,54 @@ class Popup extends React.Component {
                   return;
                 }
 
-                this.setState({
-                  resources: {
-                    ...this.state.resources,
-                    [possibility]: request.data
+                this.setState(
+                  {
+                    resources: {
+                      ...this.state.resources,
+                      [possibility]: request.data,
+                    },
+                    changed: true,
                   },
-                  changed: true,
-                }, this.setState({
-                  changed: false
-                }));
+                  this.setState({
+                    changed: false,
+                  })
+                );
               });
             } else if (resource === 'render' || resource === 'components') {
               // In the case of flex layouts, render and components aren't correlated directly
               // to how we discover if a client is in the flex pilot, so watch for render and components.
-              this.setState({
-                resources: {
-                  ...this.state.resources,
-                  flex: {
-                    ...this.state.resources.flex,
-                    [resource]: request.data
-                  }
+              this.setState(
+                {
+                  resources: {
+                    ...this.state.resources,
+                    flex: {
+                      ...this.state.resources.flex,
+                      [resource]: request.data,
+                    },
+                  },
+                  changed: true,
                 },
-                changed: true,
-              }, this.setState({
-                changed: false
-              }));
+                this.setState({
+                  changed: false,
+                })
+              );
             } else {
-              this.setState({
-                resources: {
-                  ...this.state.resources,
-                  [resource]: request.data
+              this.setState(
+                {
+                  resources: {
+                    ...this.state.resources,
+                    [resource]: request.data,
+                  },
+                  changed: true,
                 },
-                changed: true,
-              }, this.setState({
-                changed: false
-              }));
+                this.setState({
+                  changed: false,
+                })
+              );
             }
           } else if (analytics_event) {
             const parsedEvent = parseAnalyticsEvent(request.data.url);
-            
+
             const setAnalyticEvent = event => {
               let analytics_event_copy = analytics_event;
 
@@ -249,28 +254,35 @@ class Popup extends React.Component {
               const tickUpDupeNumber = potentialDupe => {
                 const eventInState = this.state.analytics[potentialDupe];
                 if (eventInState) {
-                  const dupeNumber = potentialDupe.match(/\(([0-9]*)\)/) ? potentialDupe.match(/\(([0-9]*)\)/)[1] : 0;
-                  return tickUpDupeNumber(`${analytics_event_copy}(${+dupeNumber + 1})`);
+                  const dupeNumber = potentialDupe.match(/\(([0-9]*)\)/)
+                    ? potentialDupe.match(/\(([0-9]*)\)/)[1]
+                    : 0;
+                  return tickUpDupeNumber(
+                    `${analytics_event_copy}(${+dupeNumber + 1})`
+                  );
                 } else {
                   return potentialDupe;
                 }
-              }
+              };
 
               analytics_event_copy = tickUpDupeNumber(analytics_event_copy);
 
-              this.setState({
-                analytics: {
-                  ...this.state.analytics,
-                  [analytics_event_copy]: event
+              this.setState(
+                {
+                  analytics: {
+                    ...this.state.analytics,
+                    [analytics_event_copy]: event,
+                  },
+                  changed: true,
+                  anonymous,
                 },
-                changed: true,
-                anonymous
-              }, this.setState({
-                changed: false
-              }));
+                this.setState({
+                  changed: false,
+                })
+              );
               // Tick up the total number of registered analytics
               this.addAnalytic();
-            }
+            };
 
             // If we receive a batch of events, handle each individually
             if (Array.isArray(parsedEvent)) {
@@ -279,11 +291,10 @@ class Popup extends React.Component {
               // Otherwise just set it directly.
               setAnalyticEvent(parsedEvent);
             }
-            
           }
           break;
         default:
-          console.log("request: ", request)
+          console.log('request: ', request);
       }
     });
 
@@ -301,19 +312,24 @@ class Popup extends React.Component {
   }
 
   getNewPerfMarks = () => {
-    const perfMarkArr = performance.getEntries().filter(entry => entry.name.toLowerCase().includes('bv'));
+    // eslint-disable-next-line no-undef
+    const perfMarkArr = performance
+      .getEntries()
+      .filter(entry => entry.name.toLowerCase().includes('bv'));
     this.setState({
       perfMarks: perfMarkArr,
-      totalPerfMarks: perfMarkArr.length
-    })
-  }
+      totalPerfMarks: perfMarkArr.length,
+    });
+  };
 
-  addAnalytic = () => this.setState({ totalAnalytics: this.state.totalAnalytics + 1 })
+  addAnalytic = () =>
+    this.setState({ totalAnalytics: this.state.totalAnalytics + 1 });
 
-  resetAnalytics = () => this.setState({
-    analytics: {},
-    totalAnalytics: 0
-  })
+  resetAnalytics = () =>
+    this.setState({
+      analytics: {},
+      totalAnalytics: 0,
+    });
 
   // If a user clicks on the name of a resource, we toggle the view entirely
   handleResourceClick = resource => {
@@ -323,9 +339,9 @@ class Popup extends React.Component {
     }
 
     this.setState({
-      selectedResource: this.state.resources[resource] || null
-    })
-  }
+      selectedResource: this.state.resources[resource] || null,
+    });
+  };
 
   render() {
     if (this.state.open) {
@@ -341,7 +357,7 @@ class Popup extends React.Component {
         changed,
         BV,
         $BV,
-        BVA
+        BVA,
       } = this.state;
 
       // The `chrome.extension.getURL` function is necessary to get the resource relative to
@@ -350,41 +366,41 @@ class Popup extends React.Component {
 
       return (
         // The app is registered inside of a ShadowDOM Root to prevent CSS pollution, and
-        // we also inject our CSS stylesheets here. 
+        // we also inject our CSS stylesheets here.
         <ShadowDOM
           include={[
-            getUrl("/dist/css/bvbootstrap/css/reset.css"),
-            getUrl("/dist/css/bvbootstrap/css/bootstrap.min.css"),
-            getUrl("/dist/css/main.css"),
-            getUrl("/dist/css/bvbootstrap/css/bvglyphs.css"),
-            getUrl("/dist/css/bvbootstrap/css/font-awesome.css"),
+            getUrl('/dist/css/bvbootstrap/css/reset.css'),
+            getUrl('/dist/css/bvbootstrap/css/bootstrap.min.css'),
+            getUrl('/dist/css/main.css'),
+            getUrl('/dist/css/bvbootstrap/css/bvglyphs.css'),
+            getUrl('/dist/css/bvbootstrap/css/font-awesome.css'),
           ]}
         >
           <div>
             {this.state.open && (
               <div id="bv_sidebar_container">
                 <ExtensionHeader />
-                  <ExtensionBody
-                    resources={resources}
-                    apps={apps}
-                    analytics={analytics}
-                    perfMarks={perfMarks}
-                    totalAnalytics={totalAnalytics}
-                    totalPerfMarks={totalPerfMarks}
-                    anonymous={anonymous}
-                    selectedResource={selectedResource}
-                    BV={BV}
-                    $BV={$BV}
-                    BVA={BVA}
-                    changed={changed}
-                    handleResourceClick={this.handleResourceClick}
-                    resetAnalytics={this.resetAnalytics}
-                  />
+                <ExtensionBody
+                  resources={resources}
+                  apps={apps}
+                  analytics={analytics}
+                  perfMarks={perfMarks}
+                  totalAnalytics={totalAnalytics}
+                  totalPerfMarks={totalPerfMarks}
+                  anonymous={anonymous}
+                  selectedResource={selectedResource}
+                  BV={BV}
+                  $BV={$BV}
+                  BVA={BVA}
+                  changed={changed}
+                  handleResourceClick={this.handleResourceClick}
+                  resetAnalytics={this.resetAnalytics}
+                />
               </div>
             )}
           </div>
         </ShadowDOM>
-        )
+      );
     } else {
       return null;
     }

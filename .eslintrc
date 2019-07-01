@@ -1,0 +1,57 @@
+{
+  "env": {
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "globals": {
+    "bvLoaderRender": true,
+    "NODE_ENV": true,
+    "defaultProps": true,
+    "DEBUG": true,
+    "process": true,
+    "BUNDLE_VERSION",
+    "BUNDLE_DATE",
+    "chrome",
+    "document",
+    "window"
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier/react",
+    "prettier"
+  ],
+  "plugins": [
+    "react",
+    "prettier"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "rules": {
+    "prettier/prettier": ["error", { "singleQuote": true, "trailingComma": "es5" }],
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "consistent-return": "off",
+    "curly": "error",
+    "eqeqeq": "error",
+    "eol-last": "error",
+    "no-throw-literal": "error",
+    "no-underscore-dangle": "off",
+    "no-use-before-define": ["error", "nofunc"],
+    "no-unused-vars": "error",
+    "prefer-const": "error",
+    "quote-props": ["error", "as-needed"],
+    "quotes": ["error", "single", {"avoidEscape": true}],
+    "radix": "error",
+    "wrap-iife": ["error", "inside"],
+    "linebreak-style": ["error", "unix"]
+  }
+}

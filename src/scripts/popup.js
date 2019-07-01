@@ -8,14 +8,14 @@ chrome.runtime.sendMessage({ type: 'bv-loader-extension-unmounted' });
 
 // When DOM Content is ready,
 const loadListener = document.addEventListener('DOMContentLoaded', () => {
-    // create root element
-    const app = document.createElement('div');
-    app.id = "bv-loader-health-extension-root";
-    document.body.appendChild(app);
+  // create root element
+  const app = document.createElement('div');
+  app.id = 'bv-loader-health-extension-root';
+  document.body.appendChild(app);
 
-    // inject extension
-    ReactDOM.render(<Popup />, app);
+  // inject extension
+  ReactDOM.render(<Popup />, app);
 
-    // clean up event listener
-    document.removeEventListener('DOMContentLoaded', loadListener);
+  // clean up event listener
+  document.removeEventListener('DOMContentLoaded', loadListener);
 });

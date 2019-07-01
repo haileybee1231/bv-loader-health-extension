@@ -25,19 +25,17 @@ const StatusLight = ({ status, handleClick, onResourcePage }) => (
           {/* Not a huge fan of this, but couldn't figure out how else to get these spaced correctly.
           If you're a CSS wizard, please help! */}
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          {
-            status
-              ? status.score === 2
-                ? 'Good'
-                : status.score === 1
-                  ? 'Fair'
-                  : 'Poor'
-              : 'N/A'
-          }
+          {status
+            ? status.score === 2
+              ? 'Good'
+              : status.score === 1
+              ? 'Fair'
+              : 'Poor'
+            : 'N/A'}
         </span>
       )}
     </div>
   </React.Fragment>
-)
+);
 
 export default StatusLight;

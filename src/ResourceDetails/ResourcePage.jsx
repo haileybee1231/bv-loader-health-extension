@@ -10,7 +10,10 @@ import StatusLight from '../Generic/StatusLight.jsx';
 class ResourcePage extends React.Component {
   componentDidMount() {
     // If the resource is bv.js, get it's script tag
-    if (this.props.resourceName === 'bv.js' && !this.props.bvJsScriptAttrs.length) {
+    if (
+      this.props.resourceName === 'bv.js' &&
+      !this.props.bvJsScriptAttrs.length
+    ) {
       this.props.getBvJsScriptTag();
     }
   }
@@ -24,9 +27,8 @@ class ResourcePage extends React.Component {
       flexDetails = {},
       analyticsDetails = {},
       resetVersion,
-      selectedResource,
       bvJsScriptAttrs,
-      BVA
+      BVA,
     } = this.props;
     const {
       version,
@@ -44,17 +46,25 @@ class ResourcePage extends React.Component {
       siteId,
       env,
       implementations,
-      health
-    } = resourceDetails
+      health,
+    } = resourceDetails;
 
     return (
-      <div style={{ paddingLeft: '10px', paddingTop: '10px', paddingBottom: '20px' }}>
+      <div
+        style={{
+          paddingLeft: '10px',
+          paddingTop: '10px',
+          paddingBottom: '20px',
+        }}
+      >
         <a
           onClick={() => {
             resetVersion();
             handleClick(null);
           }}
-        ><i className='icon-arrow-left'></i></a>
+        >
+          <i className="icon-arrow-left"></i>
+        </a>
         <div className="inline-headers">
           <StatusLight status={health} onResourcePage />
           <h2 style={{ marginRight: '4px' }}>{resourceName}</h2>
@@ -124,15 +134,10 @@ class ResourcePage extends React.Component {
               health={health}
             />
           )}
-          {appDetails && (
-            <AppDetails
-              appDetails={appDetails}
-              health={health}
-            />
-          )}
+          {appDetails && <AppDetails appDetails={appDetails} health={health} />}
         </div>
       </div>
-    )
+    );
   }
 }
 

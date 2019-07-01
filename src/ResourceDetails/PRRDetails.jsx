@@ -5,7 +5,7 @@ const PRRDetails = ({
   displayCode,
   submissionUI,
   urlBase,
-  urlPathPrefix
+  urlPathPrefix,
 }) => (
   <React.Fragment>
     <h3>Client</h3>
@@ -19,6 +19,6 @@ const PRRDetails = ({
     <h3>URL Path Prefix</h3>
     {urlPathPrefix}
   </React.Fragment>
-)
+);
 
 export default PRRDetails;
