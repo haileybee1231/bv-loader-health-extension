@@ -92,37 +92,51 @@ class ExtensionBody extends React.Component {
   };
 
   getBvJsScriptTag = () => {
-    const bvJsScriptTag = document.querySelector('[src*="bv.js"]');
-    const { attributes } = bvJsScriptTag;
-    const bvJsScriptAttrs = [];
-    const foundAttrs = {};
-
-    for (let i = 0; i < attributes.length; i++) {
-      // eslint-disable-next-line prefer-const
-      let { nodeName, nodeValue } = attributes[i];
-      nodeValue =
-        nodeName === 'async' || nodeName === 'defer' ? (
-          <em>true</em>
-        ) : (
-          nodeValue
-        );
-      foundAttrs[nodeName] = nodeValue;
-      if (nodeName !== 'type') {
-        bvJsScriptAttrs.push([nodeName, nodeValue]);
+    try {
+      const bvJsScriptTag = document.querySelector('[src*="bv.js"]');
+      if (bvJsScriptTag.innerHTML.includes('firebird')) {
+        throw new Error();
       }
-    }
+      const { attributes } = bvJsScriptTag;
+      const bvJsScriptAttrs = [];
+      const foundAttrs = {};
 
-    if (!foundAttrs.defer) {
-      bvJsScriptAttrs.push(['defer', 'false']);
-    }
+      for (let i = 0; i < attributes.length; i++) {
+        // eslint-disable-next-line prefer-const
+        let { nodeName, nodeValue } = attributes[i];
+        nodeValue =
+          nodeName === 'async' || nodeName === 'defer' ? (
+            <em>true</em>
+          ) : (
+            nodeValue
+          );
+        foundAttrs[nodeName] = nodeValue;
+        if (nodeName !== 'type') {
+          bvJsScriptAttrs.push([nodeName, nodeValue]);
+        }
+      }
 
-    if (!foundAttrs.async) {
-      bvJsScriptAttrs.push(['async', 'false']);
-    }
+      if (!foundAttrs.defer) {
+        bvJsScriptAttrs.push(['defer', 'false']);
+      }
 
-    this.setState({
-      bvJsScriptAttrs,
-    });
+      if (!foundAttrs.async) {
+        bvJsScriptAttrs.push(['async', 'false']);
+      }
+
+      this.setState({
+        bvJsScriptAttrs,
+      });
+    } catch (e) {
+      this.setState({
+        bvJsScriptAttrs: [
+          [
+            'error',
+            'Could not find a bv.js script tag, client may be using an alternate implementation.',
+          ],
+        ],
+      });
+    }
   };
 
   // For both this function and the special one for render and components below it,
